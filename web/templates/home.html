@@ -1,5 +1,65 @@
 <!-- TMPL_INCLUDE NAME="header.html" -->
 
+<script>
+  function disableBackground (option) {
+    if (option.value == "Ordered") {
+      document.getElementById("background").disabled = true;
+      document.getElementById("background").style.backgroundColor = "#DDDDDD";
+    }
+    else {
+      document.getElementById("background").disabled = false;
+      document.getElementById("background").style.backgroundColor = "#FFFFFF";
+
+    }
+  }
+</script>
+
 <h2>Welcome to GOliath</h2>
+
+<form action="goliath.cgi" method="POST">
+
+<table>
+  <tr>
+    <th>Select species</th>
+    <td>
+      <select name="species">
+	<!-- TMPL_LOOP NAME=SPECIES -->
+	<option><!-- TMPL_VAR NAME=SPECIES --></option>
+	<!-- /TMPL_LOOP -->
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <th>List type</th>
+    <td>
+      <select name="list_type" onchange="disableBackground(this)">
+	<option>Unordered</option>
+	<option>Ordered</option>
+      </select>
+    </td>
+  </tr>
+
+  <tr>
+    <th>Gene List</th>
+    <th>Background List (optional)</th>
+  </tr>
+
+  <tr>
+    <td>
+      <textarea name="gene_list" rows=20 cols=40, placeholder="Paste Gene Names or Ensembl IDs here"></textarea>
+    </td>
+
+    <td>
+      <textarea id="background" name="background_list" rows=20 cols=40, placeholder="Paste Gene Names or Ensembl IDs here"></textarea>
+    </td>
+  </tr>
+</table>
+
+<p class="center">
+  <input type="submit" name="submit" value="Analyse my list">
+</p>
+
+</form>
+
 
 <!-- TMPL_INCLUDE NAME="footer.html" -->
