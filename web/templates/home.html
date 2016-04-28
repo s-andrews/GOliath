@@ -1,5 +1,19 @@
 <!-- TMPL_INCLUDE NAME="header.html" -->
 
+<script>
+  function disableBackground (option) {
+    if (option.value == "Ordered") {
+      document.getElementById("background").disabled = true;
+      document.getElementById("background").style = "background-color: #DDDDDD";
+    }
+    else {
+      document.getElementById("background").disabled = false;
+      document.getElementById("background").style = "background-color: #FFFFFF";
+
+    }
+  }
+</script>
+
 <h2>Welcome to GOliath</h2>
 
 <form action="goliath.cgi" method="POST">
@@ -18,7 +32,7 @@
   <tr>
     <th>List type</th>
     <td>
-      <select name="list_type">
+      <select name="list_type" onchange="disableBackground(this)">
 	<option>Unordered</option>
 	<option>Ordered</option>
       </select>
@@ -36,7 +50,7 @@
     </td>
 
     <td>
-      <textarea name="background_list" rows=30 cols=40></textarea>
+      <textarea id="background" name="background_list" rows=30 cols=40></textarea>
     </td>
   </tr>
 </table>
