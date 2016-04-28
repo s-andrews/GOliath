@@ -29,6 +29,7 @@ p {
 }
 select {
     font-size: 120%;
+    width: 100%;
 }
 
 table {
@@ -79,7 +80,6 @@ td input[type="text"]  {
   padding: 0;
   padding-top: 3px;
   background-color: #FFFFFF;
-/*  background-image: url('../images/sierra_gradient.png'); */
   background-position: right top;
   text-align:left;
   color: black;
