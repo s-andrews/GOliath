@@ -2,4 +2,45 @@
 
 <h2>Welcome to GOliath</h2>
 
+<form action="goliath.cgi" method="POST">
+
+<table>
+  <tr>
+    <th>Select species</th>
+    <td>
+      <select name="species">
+	<!-- TMPL_LOOP NAME=SPECIES -->
+	<option><!-- TMPL_VAR NAME=SPECIES --></option>
+	<!-- /TMPL_LOOP -->
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <th>List type</th>
+    <td>
+      <select name="list_type">
+	<option>Unordered</option>
+	<option>Ordered</option>
+      </select>
+    </td>
+  </tr>
+
+  <tr>
+    <th>Gene List</th>
+    <th>Background List (optional)</th>
+  </tr>
+
+  <tr>
+    <td>
+      <textarea name="gene_list" rows=30 cols=40></textarea>
+    </td>
+
+    <td>
+      <textarea name="background_list" rows=30 cols=40></textarea>
+    </td>
+  </tr>
+</table>
+</form>
+
+
 <!-- TMPL_INCLUDE NAME="footer.html" -->
