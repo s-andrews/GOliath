@@ -25,11 +25,21 @@ a {
 
 p {
   text-align: justify;
+
   line-height: 120%;
 }
+
 select {
     font-size: 120%;
     width: 100%;
+}
+
+input {
+    font-size: 150%;
+    padding: 0.5em 2em;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearnace: none;
 }
 
 table {
