@@ -5,6 +5,7 @@ use CGI;
 use FindBin qw($RealBin);
 use File::Glob;
 use HTML::Template;
+use CGI::Carp qw(fatalsToBrowser);
 
 #######################################################################
 # Copyright Simon Andrews (simon.andrews@babraham.ac.uk) 2016
@@ -31,6 +32,9 @@ my $job_id = $q -> param("job_id");
 
 if ($job_id) {
     show_job($job_id);
+}
+elsif ($q -> param("submit")) {
+    process_submission();
 }
 else {
     show_home();
@@ -80,8 +84,98 @@ sub print_error {
 
 }
 
-sub show_job {
+sub process_submission {
 
+    # We need to collect the information from the form and check that it works.
+    my $species = $q -> param("species");
+    my $list_type = $q -> param("list_type");
+    my $gene_list_text = $q -> param("gene_list");
+    my $background_list_text = $q -> param("background_list");
+
+    unless ($species) {
+	print_bug("No species when submitting form");
+    }
+    my @species = list_species();
+    my $valid_species;
+
+    foreach my $known_species (@species) {
+	if ($known_species eq $species) {
+	    $valid_species = $known_species;
+	    last;
+	}
+    }
+
+    unless ($valid_species) {
+	print_bug("Couldn't find species '$species' on the server");
+    }
+
+    unless ($list_type eq 'Ordered' or $list_type eq 'Unordered') {
+	print_bug("Uknown list type '$list_type'");
+    }
+
+    my @gene_list_genes = get_genes($gene_list_text,$valid_species);
+    my @background_list_genes = get_genes($background_list_text,$valid_species);
+
+    unless (@gene_list_genes) {
+	print_bug("Found no gene list genes");
+    }
+
+    if ($list_type eq "Ordered") {
+	@background_list_genes = ();
+    }
+
+    my $job_id = generate_job_id();
+
+    print $q->redirect("goliath.cgi?job_id=$job_id");
+
+}
+
+sub generate_job_id {
+
+    my @letters = ('A'..'Z','a'..'z',0..9);
+
+    while (1) {
+	my $code;
+
+	for (1..20) {
+	    $code .= $letters[int rand(scalar @letters)];
+	}
+
+	if (-e "$RealBin/../../jobs/$code") {
+	    warn "Code $code already exists";
+	    next;
+	}
+
+	return $code;
+	
+
+    }
+
+
+}
+
+
+
+sub get_genes {
+    my ($text,$species) = @_;
+
+    # Eventually we'll be more clever about this and will validate and deduplicate
+    # the lists, but for now we'll just split them and be done with it.
+
+    $text =~ s/$\s+//g;
+    $text =~ s/\s+$//g;
+
+    my @genes = split(/\s*[\r\n]+\s*/,$text);
+
+    return @genes;
+
+
+}
+
+
+sub show_job {
+    my ($job_id) = @_;
+    die("Show job not implemented yet for $job_id");
 }
 
 
