@@ -60,6 +60,11 @@ sub show_home {
 
     $template -> param(SPECIES => \@species_templates);
 
+    $template -> param(VERSION => $config->{VERSION},
+		       ADMIN_EMAIL => $config->{ADMIN_EMAIL},
+		       ADMIN_NAME => $config->{ADMIN_NAME});
+
+
     print $template -> output();
 
 
