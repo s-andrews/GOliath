@@ -38,7 +38,7 @@ species <- as.character(species)
 gmt.file.name <- paste0(species, "/", (list.files(species))[1])
 print("GO file")
 print(gmt.file.name)
-gmt.file <- scan(gmt.file.name, sep="\n", what="", fileEncoding="latin1")
+gmt.file <- scan(gmt.file.name, sep="\n", what="")#, fileEncoding="latin1")
 #gmt.file <- scan("../Mouse_GO_AllPathways_with_GO_iea_March_24_2015_symbol.gmt", sep="\n", what="", fileEncoding="latin1")
 print(paste0(length(gmt.file), " categories imported"))
 
