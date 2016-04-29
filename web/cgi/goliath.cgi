@@ -258,20 +258,27 @@ sub show_job {
 	chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Couldn't move to job folder for '$job_id': $!");
 
 	$complete = -e "finished.flag";
-
     }
 
     unless ($complete) {
+	# We can't check the pid until we fix how the forking is working
+	# We'll settle for seeing if the error file is empty instead.
+
+	if (-e "$config->{JOB_FOLDER}/$job_id/errors.txt") {
+	    if ((stat "$config->{JOB_FOLDER}/$job_id/errors.txt")[7]) {
+		print_bug("Job $job_id generated errors");
+	    }
+	}
 	# We can check to see that the pid for this process is still alive
-	if (-e "$config->{JOB_FOLDER}/$job_id/pid.txt") {
-	    open(PID,"$config->{JOB_FOLDER}/$job_id/pid.txt") or print_bug("Couldn't open pid file for $job_id: $!");
-	    my $pid = <PID>;
-	    close PID;
+#	if (-e "$config->{JOB_FOLDER}/$job_id/pid.txt") {
+#	    open(PID,"$config->{JOB_FOLDER}/$job_id/pid.txt") or print_bug("Couldn't open pid file for $job_id: $!");
+#	    my $pid = <PID>;
+#	    close PID;
 
 #	    unless (kill 0, $pid) {
 #		print_bug("Rscript for job $job_id died prematurely");
 #	    }
-	}
+#	}
     }
 
     my $template = HTML::Template -> new(filename => "$RealBin/../templates/results.html");
