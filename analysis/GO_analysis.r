@@ -18,6 +18,8 @@ config.info <- read.delim("config.txt", header=FALSE, row.names=1)
 type <- config.info["type",]
 species <- config.info["species",]
 
+species <- gsub(" ","_",species)
+
 if(is.na(type)){
 	print("gene list type not detected")
 }	else if(type == "Unordered"){
@@ -37,7 +39,11 @@ bg.genes <- scan("background_list.txt", what="character")
 print(paste0(length(bg.genes), " background genes imported"))
 
 # file that contains the functional categories and genes within them
-gmt.file <- scan("../Mouse_GO_AllPathways_with_GO_iea_March_24_2015_symbol.gmt", sep="\n", what="", fileEncoding="latin1")
+gmt.file.path <- paste0("/data/private/GOliath/godata/",species)
+#print(gmt.file.path)
+gmt.file.name <- paste(gmt.file.path, list.files()[1])
+gmt.file <- scan(gmt.file.name, sep="\n", what="", fileEncoding="latin1")
+#gmt.file <- scan("../Mouse_GO_AllPathways_with_GO_iea_March_24_2015_symbol.gmt", sep="\n", what="", fileEncoding="latin1")
 print(paste0(length(gmt.file), " categories imported"))
 
 
