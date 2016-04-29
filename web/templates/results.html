@@ -2,6 +2,34 @@
 
 <h2>Results for job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --></h2>
 
+<h3>Hit table</h3>
+
+<!-- TMPL_IF NAME=HIT_TABLE -->
+<table>
+  <tr>
+    <th>GO category</th>
+    <th>Query count</th>
+    <th>Background count</th>
+    <th>Category count</th>
+    <th>FDR</th>
+  </tr>
+  <!-- TMPL_LOOP NAME=HIT_TABLE -->
+  <tr>
+    <td><!-- TMPL_VAR NAME=GO_NAME ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=QUERY_COUNT ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=BACKGROUND_COUNT ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=CATEGORY_COUNT ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=FDR ESCAPE=HTML --></td>
+  </tr>
+  <!-- /TMPL_LOOP -->
+
+
+</table>
+<!-- TMPL_ELSE -->
+<p class=center>No significant category hits</p>
+
+<!-- /TMPL_IF -->
+
 <!-- TMPL_ELSE --><!-- TMPL_INCLUDE NAME="refresh_header.html" -->
 
 <h2>Job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --> is running...</h2>
@@ -16,7 +44,15 @@
 
 <!-- /TMPL_IF --><!-- TMPL_ELSE --><!-- TMPL_INCLUDE NAME="header.html" -->
 
-<h2>Job doesn't exist</h2>
+<h2>Job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --> doesn't exist</h2>
+
+<p class="center">
+  GOliath jobs are only kept on our server for around 24hours after they are run.  After this time you'll have to run them again to see the results.
+</p>
+
+<p class="center">
+Sorry about that.
+</p>
 
 <!-- /TMPL_IF --> 
 
