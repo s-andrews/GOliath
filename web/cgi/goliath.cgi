@@ -5,7 +5,7 @@ use CGI;
 use FindBin qw($RealBin);
 use File::Glob;
 use HTML::Template;
-use CGI::Carp qw(fatalsToBrowser);
+#use CGI::Carp qw(fatalsToBrowser);
 
 #######################################################################
 # Copyright Simon Andrews (simon.andrews@babraham.ac.uk) 2016
@@ -27,6 +27,8 @@ use CGI::Carp qw(fatalsToBrowser);
 #######################################################################
 
 my $q = CGI -> new();
+
+my $config = read_config();
 
 my $job_id = $q -> param("job_id");
 
@@ -58,6 +60,11 @@ sub show_home {
 
     $template -> param(SPECIES => \@species_templates);
 
+    $template -> param(VERSION => $config->{VERSION},
+		       ADMIN_EMAIL => $config->{ADMIN_EMAIL},
+		       ADMIN_NAME => $config->{ADMIN_NAME});
+
+
     print $template -> output();
 
 
@@ -68,6 +75,9 @@ sub print_bug {
 
     my $template = HTML::Template -> new(filename => "$RealBin/../templates/bug.html");
     $template -> param(MESSAGE => $message);
+    $template -> param(VERSION => $config->{VERSION},
+		       ADMIN_EMAIL => $config->{ADMIN_EMAIL},
+		       ADMIN_NAME => $config->{ADMIN_NAME});
     print $template->output();
     die $message;
 }
@@ -126,6 +136,29 @@ sub process_submission {
 
     my $job_id = generate_job_id();
 
+    # Making the job id should have created a folder in the jobs
+    # folder for us.
+
+    chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Failed to move to job folder $job_id: $!");
+
+    # Now we can save the files
+    open (OUT,'>','config.txt') or print_bug("Failed to write to config.txt: $!");
+    print OUT "type\t$list_type\n";
+    print OUT "species\t$valid_species\n";
+    close OUT or print_bug("Failed to write to config.txt: $!");
+
+    open (OUT,'>','gene_list.txt') or print_bug("Failed to write to gene_list.txt: $!");
+    foreach my $gene (@gene_list_genes) {
+	print OUT $gene,"\n";
+    }
+    close (OUT) or print_bug("Failed to write to gene_list.txt: $!");
+
+    open (OUT,'>','background_list.txt') or print_bug("Failed to write to background_list.txt: $!");
+    foreach my $gene (@background_list_genes) {
+	print OUT $gene,"\n";
+    }
+    close (OUT) or print_bug("Failed to write to background_list.txt: $!");
+
     print $q->redirect("goliath.cgi?job_id=$job_id");
 
 }
@@ -141,9 +174,15 @@ sub generate_job_id {
 	    $code .= $letters[int rand(scalar @letters)];
 	}
 
-	if (-e "$RealBin/../../jobs/$code") {
+	if (-e "$config->{JOB_FOLDER}/$code") {
 	    warn "Code $code already exists";
 	    next;
+	}
+
+	unless (mkdir("$config->{JOB_FOLDER}/$code")) {
+	    # The chances of generating the same code at the same time
+	    # are pretty small so we'll assume this is a bug
+	    print_bug("Failed to make job folder for $code: $!");
 	}
 
 	return $code;
@@ -175,7 +214,34 @@ sub get_genes {
 
 sub show_job {
     my ($job_id) = @_;
-    die("Show job not implemented yet for $job_id");
+
+    # If the job is complete we should find a flag file called finished.flag in
+    # the run folder
+
+    my $exists = -e "$config->{JOB_FOLDER}/$job_id";
+
+    my $complete = 0;
+
+    if ($exists) {
+	chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Couldn't move to job folder for '$job_id': $!");
+
+	$complete = -e "finished.flag";
+
+    }
+
+    my $template = HTML::Template -> new(filename => "$RealBin/../templates/results.html");
+
+    $template -> param(JOB_ID => $job_id,
+		       EXISTS => $exists,
+		       COMPLETE => $complete);
+
+    $template -> param(VERSION => $config->{VERSION},
+		       ADMIN_EMAIL => $config->{ADMIN_EMAIL},
+		       ADMIN_NAME => $config->{ADMIN_NAME});
+
+
+    print $template -> output();
+
 }
 
 
@@ -199,6 +265,22 @@ sub list_species {
 	}
     }
     return @valid_species;
+
+}
+
+sub read_config {
+
+    # Eventually we'll read this from our conf file, but let's hard code some stuff for now
+
+
+    my $config = {
+
+	ADMIN_EMAIL => 'simon.andrews@babraham.ac.uk',
+	ADMIN_NAME => 'Simon Andrews',
+	VERSION => '0.1.devel',
+	JOB_FOLDER => "$RealBin/../../jobs/",
+    }
+
 
 }
 
