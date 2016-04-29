@@ -2,7 +2,7 @@ body {
   font-family: 'Pablo Impallari',sans-serif;
   color: #000000;
   background-color: #FFFFFF;
-  margin: 0;
+  margin: 1em;
   padding: 0;
 }
 
@@ -49,6 +49,10 @@ table {
   text-align: center;
 }
 
+table.results {
+    width: 80%;
+}
+
 th {
   text-align: center;
   background-color: #DDDDDD;
@@ -56,7 +60,15 @@ th {
   padding: 0.6em;
   font-size: 120%;
   font-weight: normal;
+}
 
+table.results th {
+    font-size: 100%;
+}
+
+table.results td {
+    font-size:80%;
+    background-color: white;
 }
 
 td {
