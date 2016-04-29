@@ -34,7 +34,7 @@ bg.genes <- scan("background_list.txt", what="character")
 print(paste0(length(bg.genes), " background genes imported"))
 
 # file that contains the functional categories and genes within them
-gmt.file.name <- paste0(species, "/", list.files(species)[1])
+gmt.file.name <- paste0(species, "/", (list.files(species))[1])
 print("GO file")
 print(gmt.file.name)
 gmt.file <- scan(gmt.file.name, sep="\n", what="", fileEncoding="latin1")
