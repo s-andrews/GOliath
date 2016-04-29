@@ -5,7 +5,7 @@ use CGI;
 use FindBin qw($RealBin);
 use File::Glob;
 use HTML::Template;
-use CGI::Carp qw(fatalsToBrowser);
+#use CGI::Carp qw(fatalsToBrowser);
 
 #######################################################################
 # Copyright Simon Andrews (simon.andrews@babraham.ac.uk) 2016
@@ -70,6 +70,9 @@ sub print_bug {
 
     my $template = HTML::Template -> new(filename => "$RealBin/../templates/bug.html");
     $template -> param(MESSAGE => $message);
+    $template -> param(VERSION => $config->{VERSION},
+		       ADMIN_EMAIL => $config->{ADMIN_EMAIL},
+		       ADMIN_NAME => $config->{ADMIN_NAME});
     print $template->output();
     die $message;
 }
@@ -206,7 +209,7 @@ sub get_genes {
 
 sub show_job {
     my ($job_id) = @_;
-    die("Show job not implemented yet for $job_id");
+    print_bug("Show job not implemented yet for $job_id");
 }
 
 
@@ -241,6 +244,7 @@ sub read_config {
     my $config = {
 
 	ADMIN_EMAIL => 'simon.andrews@babraham.ac.uk',
+	ADMIN_NAME => 'Simon Andrews',
 	VERSION => '0.1.devel',
 	JOB_FOLDER => "$RealBin/../../jobs/",
     }
