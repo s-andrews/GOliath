@@ -1,0 +1,25 @@
+<!-- TMPL_IF NAME=EXISTS --><!-- TMPL_IF NAME=COMPLETE --><!-- TMPL_INCLUDE NAME="header.html" -->
+
+<h2>Results for job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --></h2>
+
+<!-- TMPL_ELSE --><!-- TMPL_INCLUDE NAME="refresh_header.html" -->
+
+<h2>Job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --> is running...</h2>
+
+<p class=center>
+  <img src="goingliath_logo.gif">
+</p>
+
+<p class=center>
+  This page will refresh in 10 seconds, or you can <a href="javascript:history.go(0)">check again now</a>.
+</p>
+
+<!-- /TMPL_IF --><!-- TMPL_ELSE --><!-- TMPL_INCLUDE NAME="header.html" -->
+
+<h2>Job doesn't exist</h2>
+
+<!-- /TMPL_IF --> 
+
+
+
+<!-- TMPL_INCLUDE NAME="footer.html" -->

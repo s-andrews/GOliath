@@ -214,7 +214,34 @@ sub get_genes {
 
 sub show_job {
     my ($job_id) = @_;
-    print_bug("Show job not implemented yet for $job_id");
+
+    # If the job is complete we should find a flag file called finished.flag in
+    # the run folder
+
+    my $exists = -e "$config->{JOB_FOLDER}/$job_id";
+
+    my $complete = 0;
+
+    if ($exists) {
+	chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Couldn't move to job folder for '$job_id': $!");
+
+	$complete = -e "finished.flag";
+
+    }
+
+    my $template = HTML::Template -> new(filename => "$RealBin/../templates/results.html");
+
+    $template -> param(JOB_ID => $job_id,
+		       EXISTS => $exists,
+		       COMPLETE => $complete);
+
+    $template -> param(VERSION => $config->{VERSION},
+		       ADMIN_EMAIL => $config->{ADMIN_EMAIL},
+		       ADMIN_NAME => $config->{ADMIN_NAME});
+
+
+    print $template -> output();
+
 }
 
 
