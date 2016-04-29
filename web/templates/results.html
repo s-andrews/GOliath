@@ -16,7 +16,15 @@
 
 <!-- /TMPL_IF --><!-- TMPL_ELSE --><!-- TMPL_INCLUDE NAME="header.html" -->
 
-<h2>Job doesn't exist</h2>
+<h2>Job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --> doesn't exist</h2>
+
+<p class="center">
+  GOliath jobs are only kept on our server for around 24hours after they are run.  After this time you'll have to run them again to see the results.
+</p>
+
+<p class="center">
+Sorry about that.
+</p>
 
 <!-- /TMPL_IF --> 
 

@@ -252,6 +252,19 @@ sub show_job {
 
     }
 
+    unless ($complete) {
+	# We can check to see that the pid for this process is still alive
+	if (-e "$config->{JOB_FOLDER}/$job_id/pid.txt") {
+	    open(PID,"$config->{JOB_FOLDER}/$job_id/pid.txt") or print_bug("Couldn't open pid file for $job_id: $!");
+	    my $pid = <PID>;
+	    close PID;
+
+	    unless (kill 0, $pid) {
+		print_bug("Rscript for job $job_id died prematurely");
+	    }
+	}
+    }
+
     my $template = HTML::Template -> new(filename => "$RealBin/../templates/results.html");
 
     $template -> param(JOB_ID => $job_id,
