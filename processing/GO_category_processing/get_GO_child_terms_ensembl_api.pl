@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-# Thhis scripts connects to the ensembl api and gets all the lowest level GO terms for each gene.
+# This scripts connects to the ensembl api and gets all the lowest level GO terms for each gene.
 # It does not iterate up and get all the parent terms (the code for this is commented out at the end of the script)  - that takes too long to do via the API so that is done in a separate script. 
 # This script is designed to precede the scripts process_go_child_terms.pl and get_GO_parents.pl or get_GO_parents_and_relatives.pl.
 
@@ -122,6 +122,7 @@ sub process_chromosome {
 
   while (@genes) {
     my $gene = shift @genes;
+	print $gene;
     process_gene($gene);
   }
 
@@ -217,7 +218,11 @@ sub print_terms {
   my ($gene,@terms) = @_;
 
   foreach my $term(@terms) {
-    print join("\t",($gene->external_name(),$term->accession(),$term->namespace(),$term->name())),"\n";
+  
+	# to print out gene symbols
+    #print join("\t",($gene->external_name(),$term->accession(),$term->namespace(),$term->name())),"\n";
+	# to print out ensembl ids (display_id)
+	print join("\t",($gene->display_id(),$term->accession(),$term->namespace(),$term->name())),"\n";
   
  # uncomment the following if we want to get all the parent terms - it takes a long time.
   # my $parents = $term->parents();

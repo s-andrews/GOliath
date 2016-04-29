@@ -1,5 +1,46 @@
-rm(list=ls())
+#rm(list=ls())
 #options(encoding="utf-8")
+
+# pass in the job folder as the argument
+
+cmdArgs <- commandArgs()
+
+base.path <- "/data/private/GOliath/jobs/" 
+# is it always 6?
+job.folder <- cmdArgs[6]
+folder.path <- paste0(base.path, job.folder)
+
+setwd(folder.path)
+
+# import the config file
+config.info <- read.delim("config.txt", header=FALSE, row.names=1)
+
+type <- config.info["type",]
+species <- config.info["species",]
+
+if(is.na(type)){
+	print("gene list type not detected")
+}	else if(type == "Unordered"){
+		print ("Unordered gene list found")	
+} 	else if(type == "Ranked"){
+		print ("Ranked gene list found")
+}	else print("Gene list type not recognised")
+
+print(paste("Using species", species))
+
+# import the query genes
+query.genes <- scan("gene_list.txt", what="character")
+print(paste0(length(query.genes), " query genes imported"))
+
+# import the background genes
+bg.genes <- scan("background_list.txt", what="character")
+print(paste0(length(bg.genes), " background genes imported"))
+
+# file that contains the functional categories and genes within them
+gmt.file <- scan("../Mouse_GO_AllPathways_with_GO_iea_March_24_2015_symbol.gmt", sep="\n", what="", fileEncoding="latin1")
+print(paste0(length(gmt.file), " categories imported"))
+
+
 
 #############
 # functions
@@ -101,19 +142,6 @@ textPluralCorrection <- function(textString, pluralString, singularString, count
   if(count == 1) gsub(pluralString, singularString, textString) else if(count==0 | is.null(count)) gsub(":$", "", textString) else textString
 }
 
-
-# import the query genes
-query.genes <- scan("../jobs/test/query.txt", what="character")
-print(paste0(length(query.genes), " query genes imported"))
-
-# import the background genes
-bg.genes <- scan("../jobs/test/background.txt", what="character")
-print(paste0(length(bg.genes), " background genes imported"))
-
-# file that contains the functional categories and genes within them
-gmt.file <- scan("../jobs/test/Mouse_GO_AllPathways_with_GO_iea_March_24_2015_symbol.gmt", sep="\n", what="", fileEncoding="latin1")
-print(paste0(length(gmt.file), " categories imported"))
-
 # parse the gmt file
 go.categories <- processGMTFile(gmt.file)
 
@@ -142,9 +170,9 @@ if(sum(!query.genes %in% bg.genes > 0)){
 	
 	query.genes <- query.genes[query.genes %in% bg.genes]
 }	
-#======================================
+#=============================================
 # filter options that aren't implemented here
-#======================================
+#=============================================
 #min.genes.in.category <- 3
 #max.genes.in.category <- 5000
 
@@ -155,8 +183,8 @@ go.results <- overrepresentationAnalysis(go.categories, query.genes, bg.genes)
 # reduce the number of digits in the output
 go.results$adj.ease.pvalues <- signif(go.results$adj.ease.pvalues, digits=4)
 
-write.table(go.results, "../jobs/test/GO_analysis_results.txt", quote=FALSE, sep="\t")
-
+write.table(go.results, "GO_analysis_results.txt", quote=FALSE, sep="\t")
+write("", file="finished.log")
 
 
 
