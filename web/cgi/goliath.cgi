@@ -144,7 +144,7 @@ sub process_submission {
     # Now we can save the files
     open (OUT,'>','config.txt') or print_bug("Failed to write to config.txt: $!");
     print OUT "type\t$list_type\n";
-    print OUT "species\t$valid_species\n";
+    print OUT "species\t$RealBin/../../godata/$valid_species\n";
     close OUT or print_bug("Failed to write to config.txt: $!");
 
     open (OUT,'>','gene_list.txt') or print_bug("Failed to write to gene_list.txt: $!");
@@ -158,6 +158,29 @@ sub process_submission {
 	print OUT $gene,"\n";
     }
     close (OUT) or print_bug("Failed to write to background_list.txt: $!");
+
+    # Now we need to launch the actual analysis process.  For now we're just going to launch each
+    # one as it comes in and see if we cope.  If it gets too bad we might have to institute a
+    # queueing system.
+
+    my $pid = fork();
+
+    if ($pid) {
+	# We're the child and we need to start the analysis
+
+	# First we'll write out pid into a file in the run
+	# folder so that the results tracker can tell if we've
+	# died.
+
+	open (PID,'>','pid.txt') or die "Failed to write to pid file : $!";
+
+	print PID $pid;
+	close PID or die "Failed to write to pid file: $!";
+
+	exec("RScript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt");
+
+    }
+
 
     print $q->redirect("goliath.cgi?job_id=$job_id");
 
