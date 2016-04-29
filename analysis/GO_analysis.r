@@ -34,6 +34,7 @@ bg.genes <- scan("background_list.txt", what="character")
 print(paste0(length(bg.genes), " background genes imported"))
 
 # file that contains the functional categories and genes within them
+species <- as.character(species)
 gmt.file.name <- paste0(species, "/", (list.files(species))[1])
 print("GO file")
 print(gmt.file.name)
@@ -175,7 +176,6 @@ if(sum(!query.genes %in% bg.genes > 0)){
 #=============================================
 #min.genes.in.category <- 3
 #max.genes.in.category <- 5000
-
 
 # perform the Fishers Exact test to get results
 go.results <- overrepresentationAnalysis(go.categories, query.genes, bg.genes)
