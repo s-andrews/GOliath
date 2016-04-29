@@ -26,11 +26,11 @@ if(is.na(type)){
 print(paste("Using species", species))
 
 # import the query genes
-query.genes <- scan("gene_list.txt", what="character")
+query.genes <- scan("gene_list.txt", what="character", quiet=TRUE)
 print(paste0(length(query.genes), " query genes imported"))
 
 # import the background genes
-bg.genes <- scan("background_list.txt", what="character")
+bg.genes <- scan("background_list.txt", what="character", quiet=TRUE)
 print(paste0(length(bg.genes), " background genes imported"))
 
 # file that contains the functional categories and genes within them
@@ -38,8 +38,7 @@ species <- as.character(species)
 gmt.file.name <- paste0(species, "/", (list.files(species))[1])
 print("GO file")
 print(gmt.file.name)
-gmt.file <- scan(gmt.file.name, sep="\n", what="")#, fileEncoding="latin1")
-#gmt.file <- scan("../Mouse_GO_AllPathways_with_GO_iea_March_24_2015_symbol.gmt", sep="\n", what="", fileEncoding="latin1")
+gmt.file <- scan(gmt.file.name, sep="\n", what="", quiet=TRUE)
 print(paste0(length(gmt.file), " categories imported"))
 
 
