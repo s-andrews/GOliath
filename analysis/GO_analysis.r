@@ -5,10 +5,7 @@
 
 cmdArgs <- commandArgs()
 
-base.path <- "/data/private/GOliath/jobs/" 
-# is it always 6?
-job.folder <- cmdArgs[6]
-folder.path <- paste0(base.path, job.folder)
+folder.path <- cmdArgs[6]
 
 setwd(folder.path)
 
@@ -37,9 +34,12 @@ bg.genes <- scan("background_list.txt", what="character")
 print(paste0(length(bg.genes), " background genes imported"))
 
 # file that contains the functional categories and genes within them
-gmt.file <- scan("../Mouse_GO_AllPathways_with_GO_iea_March_24_2015_symbol.gmt", sep="\n", what="", fileEncoding="latin1")
+gmt.file.name <- paste0(species, "/", list.files()[1])
+print("GO file")
+print(gmt.file.name)
+gmt.file <- scan(gmt.file.name, sep="\n", what="", fileEncoding="latin1")
+#gmt.file <- scan("../Mouse_GO_AllPathways_with_GO_iea_March_24_2015_symbol.gmt", sep="\n", what="", fileEncoding="latin1")
 print(paste0(length(gmt.file), " categories imported"))
-
 
 
 #############
@@ -184,37 +184,5 @@ go.results <- overrepresentationAnalysis(go.categories, query.genes, bg.genes)
 go.results$adj.ease.pvalues <- signif(go.results$adj.ease.pvalues, digits=4)
 
 write.table(go.results, "GO_analysis_results.txt", quote=FALSE, sep="\t")
-write("", file="finished.log")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+write("", file="finished.flag")
 
