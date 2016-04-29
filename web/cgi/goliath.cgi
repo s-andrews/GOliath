@@ -163,6 +163,9 @@ sub process_submission {
     # one as it comes in and see if we cope.  If it gets too bad we might have to institute a
     # queueing system.
 
+    # We don't want to wait for the child so we'll detach from it
+    $SIG{CHLD} = 'IGNORE';
+
     my $pid = fork();
 
     if ($pid) {
@@ -177,7 +180,10 @@ sub process_submission {
 	print PID $pid;
 	close PID or die "Failed to write to pid file: $!";
 
-	exec("Rscript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt");
+#	exec("Rscript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt");
+
+	system("Rscript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt &");
+	exit(0);
 
     }
 
@@ -221,10 +227,13 @@ sub generate_job_id {
 sub get_genes {
     my ($text,$species) = @_;
 
+    # Don't do anything if there's nothing in the text;
+    return () unless ($text);
+
     # Eventually we'll be more clever about this and will validate and deduplicate
     # the lists, but for now we'll just split them and be done with it.
 
-    $text =~ s/$\s+//g;
+    $text =~ s/^\s+//g;
     $text =~ s/\s+$//g;
 
     my @genes = split(/\s*[\r\n]+\s*/,$text);
@@ -259,9 +268,9 @@ sub show_job {
 	    my $pid = <PID>;
 	    close PID;
 
-	    unless (kill 0, $pid) {
-		print_bug("Rscript for job $job_id died prematurely");
-	    }
+#	    unless (kill 0, $pid) {
+#		print_bug("Rscript for job $job_id died prematurely");
+#	    }
 	}
     }
 
@@ -274,6 +283,35 @@ sub show_job {
     $template -> param(VERSION => $config->{VERSION},
 		       ADMIN_EMAIL => $config->{ADMIN_EMAIL},
 		       ADMIN_NAME => $config->{ADMIN_NAME});
+
+
+    if ($complete) {
+	# We can collect the data from the results folder
+
+	# Read the hit table
+	my @hit_table;
+	open(IN,"GO_analysis_results.txt") or print_bug("Couldn't open GO results for $job_id: $!");
+	$_ = <IN>; # Remove header
+
+	while (<IN>) {
+	    chomp;
+	    my ($go_name,$query_count,$background_count,$category_count,$fdr) = split(/\t/);
+
+	    push @hit_table, {
+		GO_NAME => $go_name,
+		QUERY_COUNT => $query_count,
+		BACKGROUND_COUNT => $background_count,
+		CATEGORY_COUNT => $category_count,
+		FDR => $fdr,
+	    };
+
+	}
+
+	$template -> param(HIT_TABLE => \@hit_table);
+							
+
+
+    }
 
 
     print $template -> output();
