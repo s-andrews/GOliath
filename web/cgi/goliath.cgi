@@ -177,7 +177,7 @@ sub process_submission {
 	print PID $pid;
 	close PID or die "Failed to write to pid file: $!";
 
-	exec("RScript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt");
+	exec("Rscript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt");
 
     }
 
