@@ -28,6 +28,8 @@ use CGI::Carp qw(fatalsToBrowser);
 
 my $q = CGI -> new();
 
+my $config = read_config();
+
 my $job_id = $q -> param("job_id");
 
 if ($job_id) {
@@ -126,6 +128,29 @@ sub process_submission {
 
     my $job_id = generate_job_id();
 
+    # Making the job id should have created a folder in the jobs
+    # folder for us.
+
+    chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Failed to move to job folder $job_id: $!");
+
+    # Now we can save the files
+    open (OUT,'>','config.txt') or print_bug("Failed to write to config.txt: $!");
+    print OUT "type\t$list_type\n";
+    print OUT "species\t$valid_species\n";
+    close OUT or print_bug("Failed to write to config.txt: $!");
+
+    open (OUT,'>','gene_list.txt') or print_bug("Failed to write to gene_list.txt: $!");
+    foreach my $gene (@gene_list_genes) {
+	print OUT $gene,"\n";
+    }
+    close (OUT) or print_bug("Failed to write to gene_list.txt: $!");
+
+    open (OUT,'>','background_list.txt') or print_bug("Failed to write to background_list.txt: $!");
+    foreach my $gene (@background_list_genes) {
+	print OUT $gene,"\n";
+    }
+    close (OUT) or print_bug("Failed to write to background_list.txt: $!");
+
     print $q->redirect("goliath.cgi?job_id=$job_id");
 
 }
@@ -141,9 +166,15 @@ sub generate_job_id {
 	    $code .= $letters[int rand(scalar @letters)];
 	}
 
-	if (-e "$RealBin/../../jobs/$code") {
+	if (-e "$config->{JOB_FOLDER}/$code") {
 	    warn "Code $code already exists";
 	    next;
+	}
+
+	unless (mkdir("$config->{JOB_FOLDER}/$code")) {
+	    # The chances of generating the same code at the same time
+	    # are pretty small so we'll assume this is a bug
+	    print_bug("Failed to make job folder for $code: $!");
 	}
 
 	return $code;
@@ -199,6 +230,21 @@ sub list_species {
 	}
     }
     return @valid_species;
+
+}
+
+sub read_config {
+
+    # Eventually we'll read this from our conf file, but let's hard code some stuff for now
+
+
+    my $config = {
+
+	ADMIN_EMAIL => 'simon.andrews@babraham.ac.uk',
+	VERSION => '0.1.devel',
+	JOB_FOLDER => "$RealBin/../../jobs/",
+    }
+
 
 }
 
