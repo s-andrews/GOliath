@@ -144,7 +144,7 @@ sub process_submission {
     # Now we can save the files
     open (OUT,'>','config.txt') or print_bug("Failed to write to config.txt: $!");
     print OUT "type\t$list_type\n";
-    print OUT "species\t$valid_species\n";
+    print OUT "species\t$RealBin/../../godata/$valid_species\n";
     close OUT or print_bug("Failed to write to config.txt: $!");
 
     open (OUT,'>','gene_list.txt') or print_bug("Failed to write to gene_list.txt: $!");
