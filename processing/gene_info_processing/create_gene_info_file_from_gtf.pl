@@ -5,7 +5,7 @@
 # download gtf from ensembl:
 #     ftp://ftp.ensembl.org/pub/current_gtf/
 
-# /bi/apps/clusterflow/bi_devel/genomes.config
+# /bi/apps/clusterflow/_devel/genomes.config
 
 use warnings;
 use strict;
@@ -393,7 +393,7 @@ sub get_GC_content{
 sub get_genome_path{
 
 #	my $genome = "GRCm38";
-	my $cf_genome_config_file = "/bi/apps/clusterflow/bi_devel/genomes.config";
+	my $cf_genome_config_file = "/bi/apps/clusterflow/0.3_devel/genomes.config";
 	open (GENOME_IN,$cf_genome_config_file) or die "Can't read $cf_genome_config_file: $!";
 
 	while (my $line = <GENOME_IN>){
