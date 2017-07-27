@@ -3,13 +3,15 @@
 # This takes the processed child terms and finds all the parent categories. To be used after the process_go_child_terms.pl script. 
 # This is just looking up the parents i.e. is_a relationships.
 
+# usage perl get_GO_parents.pl xxxx_go_terms.txt go-basic.obo
+
 use warnings;
 use strict;
 use Data::Dumper;
 
 my $gmt_kids_file = $ARGV[0];
-#my $obo_file = $ARGV[1];
-my $obo_file = "go-basic.obo";
+my $obo_file = $ARGV[1];
+#my $obo_file = "go-basic.obo";
 
 # key is child, values are parents
 my %child_parents;
