@@ -177,8 +177,7 @@ sub load_obo_file_into_hash{
 				
 				$go_id_description{$id} = \@merged_name_descr;
 				$next_line = <IN_OBO>;
-			}	
-								
+			}									
 			next if($line =~ /^!/);			
 		}
 	}
