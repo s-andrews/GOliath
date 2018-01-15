@@ -1,3 +1,4 @@
+##Processing Gene ontology Information
 
 The script process_geneontology_org_file.pl can process gene ontology data downloaded from geneontology.org. The ontology categories from here should be up-to-date. This script replaces scripts 1 and 2 that are described below. Script 3 - get_GO_parents.pl or get_GO_parents_and_relatives.pl still needs to be run after process_geneontology_org_file.pl in order to get all the GO parents etc.
 
