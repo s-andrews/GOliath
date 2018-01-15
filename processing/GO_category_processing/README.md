@@ -1,26 +1,73 @@
-##Processing Gene ontology Information
+# Processing Gene ontology Information
 
-The script process_geneontology_org_file.pl can process gene ontology data downloaded from geneontology.org. The ontology categories from here should be up-to-date. This script replaces scripts 1 and 2 that are described below. Script 3 - get_GO_parents.pl or get_GO_parents_and_relatives.pl still needs to be run after process_geneontology_org_file.pl in order to get all the GO parents etc.
+In order to perform gene set analyses we need up-to-date files containing gene ontology categories and the genes mapped to these categories for a number of species. Ontology information for genes is updated and released fairly regularly from a number of sources.
 
-If ontology information is being downloaded from ensembl, the information below is still all relevant. 
+## GMT - Gene Matrix Transposed file format 
 
-=====================================================================
-To get a file of ontology information for all genes in a genome.
-The final gmt file can be used in giraph or for the SeqMonk intensity_difference go_category option:
+GMT is a file format originially used by the Broad Institute for their Gene Set Enrichment Analysis https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29               
 
-There are 3 perl scripts to use that are all in go_category_processing
-1. get_GO_child_terms_ensembl_api.pl
+In this format there is a separate line for each ontology category. The first column contains a name, the second a brief description and the third and any subsequent columns contain the gene(s) belonging to that category
+```
+HABITUATION%GOBP%GO:0046959                    habituation                    cat-2   magi-1   dop-1                   
+RESPIRATORY CHAIN COMPLEX I%GOCC%GO:0045271    respiratory chain complex      gas-1   lpd-5    nuo-1   C18E9.4   C33A12.1          
+```
+### Downloading GMT files directly
+
+Gene set information for human, mouse and rat can be downloaded from http://download.baderlab.org/EM_Genesets/. These are currently released monthly. 
+
+GMT files containing pathway information can be downloaded directly from pathway commons http://www.pathwaycommons.org/archives/
+
+### Producing GMT files
+
+Within this GO_category_processing folder are scripts to process ontology data and convert it to GMT format. This allows more species to be included and files to be updated when required. 
+
+There are multiple places that ontology information can be obtained from.
+
+
+## Processing data from geneontology.org
+
+#### Gene association files for a number of species can be downloaded from http://geneontology.org/page/download-annotations 
+
+The .gaf.gz file should be downloaded and the the following scripts need to be used in sequence:             
+1. process_geneontology_org_file.pl 
+2. get_GO_parents.pl or get_GO_parents_and_relatives.pl as described above
+
+(There are other file formats on the web page for some species - not sure whether the script works for these.)
+
+#### 1. process_geneontology_org_file.pl  
+
+The perl script processes the file and converts it to GMT format. It only contains the most specific categories i.e. the lowest level child categories. To populate the file with all the parent categories, another script needs to be run.
+
+Usage:
+
+
+#### 2. get_GO_parents.pl OR get_GO_parents_and_relatives.pl
+
+The parents script only includes the is_a relationships.
+The parents_and_relatives script also includes the other relationships, i.e. part_of, positively_regulates, negatively_regulates and regulates.
+The output of this is a new gmt file that includes the child and parent (relatives).
+
+Usage:  perl get_GO_parents.pl input_file.txt
+	perl get_GO_parents_and_relatives.pl input_file.txt
+
+A go-basic.obo file is required - by default the script looks for this in the current working directory.
+
+### go-basic.obo
+To process the parent and child mappings, the file go-basic.obo is required. This is released daily from http://purl.obolibrary.org/obo/go/go-basic.obo
+
+
+
+## Processing data from Ensembl
+
+Ontology information can be downloaded from Ensembl instead of geneontology.org. 
+The following scripts need to be used in sequence
+1. get_GO_child_terms_ensembl_api.pl 
 2. process_go_child_terms.pl
-3. get_GO_parents.pl or get_GO_parents_and_relatives.pl
+3. get_GO_parents.pl or get_GO_parents_and_relatives.pl as described above
 
-The only part of this that is species specific is the initial step - downloading the GO category information from Ensembl.
+#### 1. Using the Ensembl API - get_GO_child_terms_ensembl_api.pl 
 
-See below for details for each script.
-
-
-
-1. Use the script get_GO_child_terms_ensembl_api.pl - this does not iterate up and get all the parent terms, that part is commented out in the script.
-It connects to the ensembl api and gets all the lowest level terms for each gene.
+The script get_GO_child_terms_ensembl_api.pl connects to the ensembl api and gets all the lowest level terms for each gene.
 module load bioperl 
 module load ensemblapi
 
@@ -29,24 +76,29 @@ USAGE: perl get_GO_child_terms_ensembl_api.pl Homo_sapiens > output_file.txt
 output e.g.
 YKL222C GO:0005515      molecular_function      protein binding
 
-2. This needs to be processed using the process_go_child_terms.pl script. the output of this is in gmt format.
-    eg. HABITUATION%GOBP%GO:0046959     habituation     cat-2   magi-1  dop-1
+to check the available databases
+mysql -u anonymous -h ensembldb.ensembl.org -P 3306
+SHOW DATABASES LIKE "%core%";
+
+In theory this script could iterate up and get all the parent terms, but this takes an excessively long times so that part is commented out in the script
+
+#### 2. Process the downloaded information - process_go_child_terms.pl
+
+The output of the api script needs to be processed.
 
 perl process_go_child_terms.pl input_file.txt
-	
-3. To get all the parent GO categories, use get_GO_parents.pl or get_GO_parents_and_relatives.pl
+
+#### 3. Run GO_parents.pl or get_GO_parents_and_relatives.pl
+
 The parents script only includes the is_a relationships.
 The parents_and_relatives script also includes the other relationships, i.e. part_of, positively_regulates, negatively_regulates and regulates.
 The output of this is a new gmt file that includes the child and parent (relatives).
 
-It relies on the go-basic.obo file which needs to be updated frequently, it is released daily - download from http://purl.obolibrary.org/obo/go/go-basic.obo
+Usage:  perl get_GO_parents.pl input_file.txt
+	perl get_GO_parents_and_relatives.pl input_file.txt
 
-perl get_GO_parents.pl input_file.txt
-perl get_GO_parents_and_relatives.pl input_file.txt
+A go-basic.obo file is required - by default the script looks for this in the current working directory.
 
+### go-basic.obo
+To process the parent and child mappings, the file go-basic.obo is required. This is released daily from http://purl.obolibrary.org/obo/go/go-basic.obo
 
-
-
-to check the available databases
-mysql -u anonymous -h ensembldb.ensembl.org -P 3306
-SHOW DATABASES LIKE "%core%";
