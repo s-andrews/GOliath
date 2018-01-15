@@ -71,7 +71,7 @@ The script get_GO_child_terms_ensembl_api.pl connects to the ensembl api and get
 module load bioperl 
 module load ensemblapi
 
-USAGE: perl get_GO_child_terms_ensembl_api.pl Homo_sapiens > output_file.txt
+Usage: perl get_GO_child_terms_ensembl_api.pl Homo_sapiens > output_file.txt
 
 output e.g.
 YKL222C GO:0005515      molecular_function      protein binding
@@ -86,7 +86,7 @@ In theory this script could iterate up and get all the parent terms, but this ta
 
 The output of the api script needs to be processed.
 
-perl process_go_child_terms.pl input_file.txt
+Usage: perl process_go_child_terms.pl input_file.txt
 
 #### 3. Run GO_parents.pl or get_GO_parents_and_relatives.pl
 
