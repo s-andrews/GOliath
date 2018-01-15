@@ -1,10 +1,10 @@
-# Processing Gene ontology Information
+# Processing Gene Ontology Information
 
 In order to perform gene set analyses we need up-to-date files containing gene ontology categories and the genes mapped to these categories for a number of species. Ontology information for genes is updated and released fairly regularly from a number of sources.
 
 ## GMT - Gene Matrix Transposed file format 
 
-GMT is a file format originially used by the Broad Institute for their Gene Set Enrichment Analysis https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29               
+GMT is a file format originally used by the Broad Institute for their Gene Set Enrichment Analysis https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29               
 
 In this format there is a separate line for each ontology category. The first column contains a name, the second a brief description and the third and any subsequent columns contain the gene(s) belonging to that category
 ```
@@ -30,7 +30,7 @@ There are multiple places that ontology information can be obtained from.
 
 The .gaf.gz file should be downloaded and the the following scripts need to be used in sequence:             
 1. process_geneontology_org_file.pl 
-2. get_GO_parents.pl or get_GO_parents_and_relatives.pl as described above
+2. get_GO_parents.pl or get_GO_parents_and_relatives.pl
 
 (There are other file formats on the web page for some species - not sure whether the script works for these.)
 
@@ -38,7 +38,7 @@ The .gaf.gz file should be downloaded and the the following scripts need to be u
 
 The perl script processes the file and converts it to GMT format. It only contains the most specific categories i.e. the lowest level child categories. To populate the file with all the parent categories, another script needs to be run.
 
-Usage:
+Usage: perl process_geneontology_org_file --obo go-basic.obo --gene_ontology_file gene_association.mgi
 
 
 #### 2. get_GO_parents.pl OR get_GO_parents_and_relatives.pl
@@ -60,25 +60,29 @@ To process the parent and child mappings, the file go-basic.obo is required. Thi
 ## Processing data from Ensembl
 
 Ontology information can be downloaded from Ensembl instead of geneontology.org. 
-The following scripts need to be used in sequence
+The following scripts need to be used in sequence:
 1. get_GO_child_terms_ensembl_api.pl 
 2. process_go_child_terms.pl
 3. get_GO_parents.pl or get_GO_parents_and_relatives.pl as described above
 
 #### 1. Using the Ensembl API - get_GO_child_terms_ensembl_api.pl 
 
-The script get_GO_child_terms_ensembl_api.pl connects to the ensembl api and gets all the lowest level terms for each gene.
+The script get_GO_child_terms_ensembl_api.pl connects to the ensembl api and gets all the lowest level terms for each gene.        
+Babraham specific:      
+```
 module load bioperl 
 module load ensemblapi
-
-Usage: perl get_GO_child_terms_ensembl_api.pl Homo_sapiens > output_file.txt
-
-output e.g.
+perl get_GO_child_terms_ensembl_api.pl Homo_sapiens > output_file.txt
+```
+output e.g.          
+```
 YKL222C GO:0005515      molecular_function      protein binding
-
+```
 to check the available databases
+```
 mysql -u anonymous -h ensembldb.ensembl.org -P 3306
 SHOW DATABASES LIKE "%core%";
+```
 
 In theory this script could iterate up and get all the parent terms, but this takes an excessively long times so that part is commented out in the script
 
