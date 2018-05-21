@@ -572,7 +572,7 @@ Options:
 
   --genome                genome to use e.g. GRCm38 (optional, GC content column will be blank if this isn't specified)
                           uses the clusterflow config file to get the genome paths
-						  run cf --list_genomes to see available genomes 
+						  run cf --genomes to see available genomes 
 
   --genome_folder         path to genome folder - another way of accessing the genome. This isn't needed if --genome is specified.
 
