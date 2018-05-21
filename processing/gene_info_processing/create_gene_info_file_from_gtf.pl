@@ -562,7 +562,7 @@ __DATA__
 
  Perl script that parses a gtf file and uses it to look up information such as GC content from the appropriate genome.
 
- Usage: create_gene_info_from_file.pl --gtf file.gtf --genome GRCm38 --exclude_biotypes "x y z"
+ Usage: create_gene_info_file_from_gtf.pl --gtf file.gtf --genome GRCm38 --exclude_biotypes "x y z"
 
 ========================================================================================================================
 
