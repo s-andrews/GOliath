@@ -302,7 +302,7 @@ sub show_job {
 
 	while (<IN>) {
 	    chomp;
-	    my ($go_name,$query_count,$background_count,$category_count,$fdr) = split(/\t/);
+	    my ($go_name,$query_count,$background_count,$category_count,$fdr,$potential_bias) = split(/\t/);
 
 	    push @hit_table, {
 		GO_NAME => $go_name,
@@ -310,6 +310,7 @@ sub show_job {
 		BACKGROUND_COUNT => $background_count,
 		CATEGORY_COUNT => $category_count,
 		FDR => $fdr,
+		POTENTIAL_BIAS => $potential_bias
 	    };
 
 	}

@@ -12,6 +12,7 @@ setwd(folder.path)
 # import the config file
 config.info <- read.delim("config.txt", header=FALSE, row.names=1)
 
+
 type <- config.info["type",]
 species <- config.info["species",]
 
@@ -182,6 +183,41 @@ go.results <- overrepresentationAnalysis(go.categories, query.genes, bg.genes)
 # reduce the number of digits in the output
 go.results$adj.ease.pvalues <- signif(go.results$adj.ease.pvalues, digits=4)
 
+#==================================
+# check against suspect categories
+#==================================
+#result_table <- read.delim("/data/private/GOliath/jobs/fKnqGgmhXTKGjzSLE5vN/GO_analysis_results.txt")
+suspects <- read.delim("/data/private/GOliath/suspect_GO_categories/suspect_categories.txt")
+
+sig_categories <- rownames(go.results)
+
+# in case they categories are in the format "RESPONSE TO CHEMICAL%GOBP%GO:0042221,
+# we split by %. If there are no % characters present, it should still work fine.
+split_categories <- strsplit(sig_categories, split="%", fixed=TRUE)
+ids <- sapply(split_categories, tail, n=1)
+
+# clean up any whitespace so we can do an exact match
+flag_locations <- sapply(ids, grep, suspects$GO_ID)
+
+get_description <- function(locations, descriptions){
+	paste0(descriptions[locations], collapse=", ")
+}
+
+flag_descriptions <- sapply(flag_locations, get_description, suspects$bias_source)
+
+flag_descriptions[flag_descriptions == ""] <- "none found"
+
+go.results$potential_bias <- flag_descriptions
+
 write.table(go.results, "GO_analysis_results.txt", quote=FALSE, sep="\t")
 write("", file="finished.flag")
+
+
+
+
+
+
+
+
+
 
