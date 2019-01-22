@@ -562,7 +562,7 @@ __DATA__
 
  Perl script that parses a gtf file and uses it to look up information such as GC content from the appropriate genome.
 
- Usage: create_gene_info_from_file.pl --gtf file.gtf --genome GRCm38 --exclude_biotypes "x y z"
+ Usage: create_gene_info_file_from_gtf.pl --gtf file.gtf --genome GRCm38 --exclude_biotypes "x y z"
 
 ========================================================================================================================
 
@@ -572,7 +572,7 @@ Options:
 
   --genome                genome to use e.g. GRCm38 (optional, GC content column will be blank if this isn't specified)
                           uses the clusterflow config file to get the genome paths
-						  run cf --list_genomes to see available genomes 
+						  run cf --genomes to see available genomes 
 
   --genome_folder         path to genome folder - another way of accessing the genome. This isn't needed if --genome is specified.
 

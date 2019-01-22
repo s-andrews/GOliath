@@ -32,7 +32,7 @@ my %child_parents;
 
 my $config_result = GetOptions(
 "obo=s" => \$obo_file,
-"geneontology_file=s"  => \$gene_ontology_file
+"gene_ontology_file=s"  => \$gene_ontology_file
 #"help" => \$help
 );
 die "Could not parse options" unless ($config_result);
@@ -84,7 +84,7 @@ while (my $line = <IN>){
 		$go_term =~ s/ /_whitespace_/g;
 
 		my $short_type;
-
+		
 		if($type eq 'molecular_function'){
 				$short_type = 'GOMF';
 		}
@@ -94,7 +94,7 @@ while (my $line = <IN>){
 		if($type eq 'cellular_component'){
 				$short_type = 'GOCC';
 		}
-
+		
 		my @info = (uc($go_term), $short_type, $go_id);
 
 		$go_categories{$go_id} = \@info;
@@ -168,6 +168,17 @@ sub load_obo_file_into_hash{
 			# for each id, add it to the hash
 			$go_id_description{$id} = \@merged_name_descr;
 			
+			# there are some alternative ids, we're just going to add these in for now so there might be some duplication
+			my $next_line = <IN_OBO>;
+			while($next_line =~ /^alt_id/){
+				$id = $next_line;
+				chomp $id;
+				$id =~ s/alt_id: //;
+				
+				$go_id_description{$id} = \@merged_name_descr;
+				$next_line = <IN_OBO>;
+			}									
+			next if($line =~ /^!/);			
 		}
 	}
 	print "\n$counter ontology categories processed from $obo_file \n";

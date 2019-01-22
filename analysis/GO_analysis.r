@@ -81,7 +81,7 @@ processGMTFile <- function(gmt.file, min.genes.in.category=3, max.genes.in.categ
 #=================
 
 # list of categories is all the functional categories from the gmt file
-overrepresentationAnalysis <- function(list.of.categories, query.genes, bg.genes, min.query.genes.in.category=3, adj.p.value.threshold=0.05){
+overrepresentationAnalysis <- function(list.of.categories, query.genes, bg.genes, min.query.genes.in.category=3, adj.p.value.threshold=0.05, ease=TRUE){
   
 
   # filter the list of categories by matching query genes
@@ -100,24 +100,49 @@ overrepresentationAnalysis <- function(list.of.categories, query.genes, bg.genes
   # number of query genes not in category
   query.not.in <- length(query.genes) - df$query.count
   # number of background genes not in category
-  bg.not.in <- length(bg.genes) - df$bg.count
-  
-  # if we wanted to use plain fisher test instead of the ease values
-  #df$fisher.pval <- apply(df, 1, function(x){fisher.test(matrix(x,nrow=2))$p.value})
-  #df$adj.fisher.pval <- p.adjust(df$fisher.pval,method="BH")
-  
+  bg.not.in <- length(bg.genes) - df$bg.count 
+  # number of categories that were discarded as contained too few query genes
+  untested_categories <- length(list.of.categories) - length(categories)	
+	
+	
+  if(ease == FALSE){	
   #========================
   # do fisher's exact test 
   #========================
+    contingency.values <- cbind(df$query.count,df$bg.count,query.not.in,bg.not.in)
+
+    df$fisher.pval <- apply(contingency.values, 1, function(x){fisher.test(matrix(x,nrow=2), alternative = "greater")$p.value})
+
+	   # slight fudge because we need to do the multiple testing correction for more categories than we have here.
+	   # we have only actually tested categories with a certain number of query genes in them so as not to slow 
+	   # the code down with extra fishers tests that wouldn't be biologically significant
+
+    extended.pvals <- c(df$fisher.pval, rep(10, untested_categories))
+    adjusted_extended <- p.adjust(extended.pvals,method="BH")
+
+    # take the top 
+    df$adj.fisher.pval <- adjusted_extended[1:length(categories)]
+	  
+    df <- df[df$adj.fisher.pval <= adj.p.value.threshold,]
+    return(df[order(df$adj.fisher.pval),])
+  }	  
+  
+  else{	
+  #========================
   # use the DAVID stats where they subtract 1 from the number of query genes in the category
-  ease.contingency.values <- cbind(df$query.count-1,df$bg.count,query.not.in,bg.not.in)
-  
-  ease.pvalues <- apply(ease.contingency.values, 1, function(x)fisher.test(matrix(x,nrow=2), alternative = "greater")$p.value)
-  df$adj.ease.pvalues <- p.adjust(ease.pvalues, method="BH")
-  
-  df <- df[df$adj.ease.pvalues <= adj.p.value.threshold,]
-  
-  df.ordered <- df[order(df$adj.ease.pvalues),]
+    ease.contingency.values <- cbind(df$query.count-1,df$bg.count,query.not.in,bg.not.in)
+
+    df$ease.pval <- apply(ease.contingency.values, 1, function(x)fisher.test(matrix(x,nrow=2), alternative = "greater")$p.value)
+
+    extended.ease.pvals <- c(df$ease.pval, rep(10, untested_categories))
+    adjusted_extended.ease <- p.adjust(extended.ease.pvals,method="BH")
+
+    df$adj.ease.pvalues <- adjusted_extended.ease[1:length(categories)]
+
+    df <- df[df$adj.ease.pvalues <= adj.p.value.threshold,]
+
+    return(df[order(df$adj.ease.pvalues),])
+  }				 
 }
 
 #=====================================================
