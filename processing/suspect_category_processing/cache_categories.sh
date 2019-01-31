@@ -3,6 +3,7 @@
 # the file must contain GO (or other) ids in the firt column - this doesn't check
 outfile="../../suspect_GO_categories/suspect_categories.txt"
 echo -e "GO_ID\tbias_source" > $outfile
+echo -e "writing to file $outfile"
 
 all_files=$@
 
@@ -28,4 +29,5 @@ for file in $all_files; do
 			done
 		done	
 	fi
+	echo -e "added $description categories to file"
 done
