@@ -1,11 +1,12 @@
 #rm(list=ls())
 #options(encoding="utf-8")
-
+library(data.table)
+library(plyr)
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
 source("/data/private/GOliath/analysis/GOliath_functions.r")
 source("/data/private/GOliath/analysis/overrepresentation_test.r")
-
+source("/data/private/GOliath/analysis/plots.r")
 
 # pass in the job folder as the argument
 cmdArgs <- commandArgs()
@@ -47,11 +48,25 @@ species <- as.character(species)
 gmt.file.name <- paste0(species, "/", (list.files(species))[1])
 print("GO file")
 print(gmt.file.name)
-gmt.file <- scan(gmt.file.name, sep="\n", what="", quiet=TRUE)
+gmt.file <- scan(gmt.file.name, sep = "\n", what = "", quiet = TRUE)
 print(paste0(length(gmt.file), " categories imported"))
 
 # parse the gmt file
 go.categories <- process_GMT(gmt.file)
+
+#===========================
+# import the gene info file
+#===========================
+# this needs sorting properly 
+if (grepl(pattern = "Homo_Sapiens", species)) {
+    gene_info_file_location <- "/data/private/GOliath/gene_info_data/Homo sapiens/GRCh38.80_gene_info.txt"
+    all_gene_info <- fread(gene_info_file_location, select=c(1:5,7:11), stringsAsFactors=TRUE, data.table=FALSE)
+} else if (grepl(pattern = "Mus musculus", species)) {
+    gene_info_file_location <- "/data/private/GOliath/gene_info_data/Mus musculus/GRCm38.80_gene_info.txt"
+    all_gene_info <- fread(gene_info_file_location, select=c(1:5,7:11), stringsAsFactors=TRUE, data.table=FALSE)
+} else {
+    print("Couldn't find gene info file")
+}
 
 
 #=======================
@@ -120,5 +135,62 @@ flag_descriptions[flag_descriptions == ""] <- "none found"
 go_results$potential_bias <- flag_descriptions
 
 write.table(go_results, "GO_analysis_results.txt", quote=FALSE, sep="\t")
+
+if(!is.null(all_gene_info)){
+    
+    chromosomes <- list(
+        mouse = c(1:19,"MT","X","Y"),
+        human = c(1:22,"MT","X","Y"),
+        rat = c(1:20,"MT","X","Y"),
+        worm = c("I","II","III","IV","MtDNA","V","X"),
+        zebrafish = c(1:25,"MT")
+    )
+    
+    # clean up the gene names
+    all.gene.info[,"gene_name"] <- toupper(cleanText(all.gene.info[,"gene_name"]))
+    
+    #=============================================
+    # remove any genes not in the background list
+    #=============================================
+    
+    all.gene.info <- all.gene.info[all.gene.info[,"gene_name"] %in% bg.genes,]
+    
+    # we probably have duplicates in the gene info file but this shouldn't be a problem when we use ensembl ids
+    
+    # add a TRUE/FALSE column for whether the gene is a query gene
+    all.gene.info$query <- all.gene.info[,"gene_name"] %in% query.genes
+    
+    
+    
+}
+
+
+#============
+# The plots
+#============
+
+#=============
+# The GC plot 
+#=============
+
+plotting.data <- all.gene.info[,c("GC_content","query")]
+
+png("GC.png")
+bar_plot(plotting.data, main = "GC content", xlab = "GC content")
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 write("", file="finished.flag")
 
