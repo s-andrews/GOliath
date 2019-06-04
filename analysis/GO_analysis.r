@@ -6,7 +6,8 @@ library(plyr)
 # but for now we'll just source the files
 source("/data/private/GOliath/analysis/GOliath_functions.r")
 source("/data/private/GOliath/analysis/overrepresentation_test.r")
-source("/data/private/GOliath/analysis/plots.r")
+source("/data/private/GOliath/analysis/plots.R")
+source("/data/private/GOliath/analysis/utilities.R")
 
 # pass in the job folder as the argument
 cmdArgs <- commandArgs()
@@ -23,25 +24,26 @@ type <- config.info["type",]
 species <- config.info["species",]
 
 if(is.na(type)){
-	print("gene list type not detected")
+    print("gene list type not detected")
 }	else if(type == "Unordered"){
-		print ("Unordered gene list found")	
+    print ("Unordered gene list found")	
 } 	else if(type == "Ranked"){
-		print ("Ranked gene list found")
+    print ("Ranked gene list found")
 }	else print("Gene list type not recognised")
 
 print(paste("Using species", species))
 
 # import the query genes
-query.genes <- scan("gene_list.txt", what="character", quiet=TRUE)
-print(paste0(length(query.genes), " query genes imported"))
+query_genes <- scan("gene_list.txt", what="character", quiet=TRUE)
+print(paste0(length(query_genes), " query genes imported"))
 
 # import the background genes
-bg.genes <- scan("background_list.txt", what="character", quiet=TRUE)
-print(paste0(length(bg.genes), " background genes imported"))
+bg_genes <- scan("background_list.txt", what="character", quiet=TRUE)
+print(paste0(length(bg_genes), " background genes imported"))
 
-query.genes <- clean_text(query.genes)
-bg.genes <- clean_text(bg.genes)
+# clean_text removes spaces, characters and converts to upper case
+query_genes <- clean_text(query_genes)
+bg_genes <- clean_text(bg_genes)
 
 # file that contains the functional categories and genes within them
 species <- as.character(species)
@@ -68,31 +70,29 @@ if (grepl(pattern = "Homo_Sapiens", species)) {
     print("Couldn't find gene info file")
 }
 
+# make sure gene names are upper case
+all_gene_info[,"gene_name"] <- toupper(all_gene_info[,"gene_name"])
+
 
 #=======================
 # for empty background
 #=======================
 # set the background as all the genes present in the gmt file
 # this needs to be a more robust check...
-ifelse((length(bg.genes) == 0), bg.genes <- unique(unlist(go.categories)), bg.genes <- remove_duplicates(bg.genes))
+ifelse((length(bg_genes) == 0), bg_genes <- unique(unlist(go.categories)), bg_genes <- remove_duplicates(bg_genes))
 
 #====================
 # remove duplicates
 #====================
-query.genes <- remove_duplicates(query.genes)
+query_genes <- remove_duplicates(query_genes)
 
-#=======================
-# convert to upper case
-#=======================
-#query.genes <- toupper(query.genes)
-#bg.genes <- toupper(bg.genes)
 
 # check whether all the query genes are in the background genes
-if(sum(!query.genes %in% bg.genes > 0)){
-	print("not all query genes found in background genes")
-	print(query.genes[!query.genes %in% bg.genes])
-	
-	query.genes <- query.genes[query.genes %in% bg.genes]
+if(sum(!query_genes %in% bg_genes > 0)){
+    print("not all query genes found in background genes")
+    print(query_genes[!query_genes %in% bg_genes])
+    
+    query_filt <- query_genes[query_genes %in% bg_genes]
 }	
 #=============================================
 # filter options that aren't implemented here
@@ -101,12 +101,12 @@ if(sum(!query.genes %in% bg.genes > 0)){
 #max.genes.in.category <- 5000
 
 # perform the Fishers Exact test to get results
-#go.results <- overrepresentationAnalysis(go.categories, query.genes, bg.genes)
+#go.results <- overrepresentationAnalysis(go.categories, query_filt, bg_genes)
 
 # reduce the number of digits in the output
 #go.results$adj.ease.pvalues <- signif(go.results$adj.ease.pvalues, digits=4)
 
-go_results <- overrep_test(go.categories, query.genes, bg.genes)
+go_results <- overrep_test(go.categories, query_filt, bg_genes)
 
 #==================================
 # check against suspect categories
@@ -129,7 +129,7 @@ ids <- sapply(split_categories, "[", 3)
 flag_locations <- sapply(ids, grep, suspects$GO_ID)
 
 get_description <- function(locations, descriptions){
-	paste0(descriptions[locations], collapse=", ")
+    paste0(descriptions[locations], collapse=", ")
 }
 
 flag_descriptions <- sapply(flag_locations, get_description, suspects$bias_source)
@@ -151,18 +151,24 @@ if(!is.null(all_gene_info)){
     )
     
     # clean up the gene names
-    all.gene.info[,"gene_name"] <- toupper(cleanText(all.gene.info[,"gene_name"]))
+    #   all_gene_info[,"gene_name"] <- toupper(clean_text(all_gene_info[,"gene_name"]))
+    
+    print(head(all_gene_info))
     
     #=============================================
     # remove any genes not in the background list
     #=============================================
+    print("number of background genes =")
+    print(length(bg_genes))
+    gene_info <- all_gene_info[all_gene_info[,"gene_name"] %in% bg_genes,]
     
-    all.gene.info <- all.gene.info[all.gene.info[,"gene_name"] %in% bg.genes,]
+    print("number of gene in gene info file that matched the background genes = ")
+    print(nrow(all_gene_info))
     
     # we probably have duplicates in the gene info file but this shouldn't be a problem when we use ensembl ids
     
     # add a TRUE/FALSE column for whether the gene is a query gene
-    all.gene.info$query <- all.gene.info[,"gene_name"] %in% query.genes
+    gene_info$query <- gene_info[,"gene_name"] %in% query_filt
     
     
     
@@ -177,20 +183,37 @@ if(!is.null(all_gene_info)){
 # The GC plot 
 #=============
 
-plotting.data <- all.gene.info[,c("GC_content","query")]
+#plotting.data <- all_gene_info[,c("GC_content","query")]
+#print(head(plotting.data))#
 
-png("GC.png")
-bar_plot(plotting.data, main = "GC content", xlab = "GC content")
+#png("GC.png")
+#bar_plot(plotting.data, main = "GC content", xlab = "GC content")
+#dev.off()
+
+#=============
+# length plot
+#=============
+query_lengths <- get_lengths(query_filt, gene_info)
+bg_lengths    <- get_lengths(bg_genes, gene_info)
+
+my_plotting_data <- list(query = query_lengths, background = bg_lengths)
+
+png("gene_lengths.png")
+density_plot(my_plotting_data, log = TRUE, main = "gene lengths")
 dev.off()
 
 
+#Plot which chromosome the genes are on.
 
+query_chr <- get_chromosomes(query_filt, gene_info)
+bg_chr    <- get_chromosomes(bg_genes, gene_info)
 
+chr_list <- list(query = query_chr, background = bg_chr)
+chr_proportions <- get_chr_percentage(chr_list)
 
-
-
-
-
+png("chr_plot.png")
+bar_plot(chr_proportions, main = "chr")
+dev.off()
 
 
 
