@@ -54,6 +54,8 @@ overrep_test <- function(categories, query_genes, bg_genes, min_query = 3,
     category_length = sapply(matched_categories, length)
   )
 
+  df$enrichment <- (df$query_in_category/length(query_genes))/(df$bg_in_category/length(bg_genes))
+  
   query_not_in_category <- length(query_genes) - df$query_in_category
   bg_not_in_category    <- length(bg_genes)    - df$bg_in_category
 
