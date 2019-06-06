@@ -88,7 +88,7 @@ query_genes <- remove_duplicates(query_genes)
 
 
 # check whether all the query genes are in the background genes
-if(sum(!query_genes %in% bg_genes > 0)){
+if (sum(!query_genes %in% bg_genes > 0)) {
     print("not all query genes found in background genes")
     print(query_genes[!query_genes %in% bg_genes])
     
@@ -116,9 +116,9 @@ suspects <- read.delim("/data/private/GOliath/suspect_GO_categories/suspect_cate
 
 sig_categories <- rownames(go_results)
 
-# in case they categories are in the format "RESPONSE TO CHEMICAL%GOBP%GO:0042221,
+# in case the categories are in the format "RESPONSE TO CHEMICAL%GOBP%GO:0042221,
 # we split by %. If there are no % characters present, it should still work fine.
-split_categories <- strsplit(sig_categories, split="%", fixed=TRUE)
+split_categories <- strsplit(sig_categories, split = "%", fixed = TRUE)
 
 # it doesn't work taking the last category as the wikipathways have the organism as the 4th field.
 # we'll go for the 3rd category
@@ -129,7 +129,7 @@ ids <- sapply(split_categories, "[", 3)
 flag_locations <- sapply(ids, grep, suspects$GO_ID)
 
 get_description <- function(locations, descriptions){
-    paste0(descriptions[locations], collapse=", ")
+    paste0(descriptions[locations], collapse = ", ")
 }
 
 flag_descriptions <- sapply(flag_locations, get_description, suspects$bias_source)
@@ -138,14 +138,44 @@ flag_descriptions[flag_descriptions == ""] <- "none found"
 
 go_results$potential_bias <- flag_descriptions
 
-write.table(go_results, "GO_analysis_results.txt", quote=FALSE, sep="\t")
+write.table(go_results, "GO_analysis_results.txt", quote = FALSE, sep = "\t")
 
-if(!is.null(all_gene_info)){
+#=================
+# summary stats
+#=================
+total_sig_categories    <- nrow(go_results)
+categories_not_flagged  <- sum(flag_descriptions == "none found")
+categories_flagged      <- sum(flag_descriptions != "none found")
+size_of_bias_categories <- suspects %>%
+    count(bias_source) %>%
+    arrange(desc(n))
+# number of GO categories flagged with each bias
+size_of_bias_categories$number_flagged <- sapply(size_of_bias_categories$bias_source, function(y) {
+    length(grep(x = flag_descriptions, pattern = y, fixed = TRUE))
+})
+
+sink("summary.txt")
+
+(df_summary <- data.frame("number of significant categories identified" = total_sig_categories,
+                         "number of categories flagged as potential biases" = categories_flagged,
+                         "number of categories not flagged" = categories_not_flagged))
+size_of_bias_categories
+sink()
+
+write_delim(size_of_bias_categories, "summary_stats.txt")
+
+
+
+#=================
+# screening plots
+#=================
+
+if (!is.null(all_gene_info)) {
     
     chromosomes <- list(
         mouse = c(1:19,"MT","X","Y"),
         human = c(1:22,"MT","X","Y"),
-        rat = c(1:20,"MT","X","Y"),
+        rat = c(1:20,"MT","X","Y"),  
         worm = c("I","II","III","IV","MtDNA","V","X"),
         zebrafish = c(1:25,"MT")
     )
@@ -162,15 +192,13 @@ if(!is.null(all_gene_info)){
     print(length(bg_genes))
     gene_info <- all_gene_info[all_gene_info[,"gene_name"] %in% bg_genes,]
     
-    print("number of gene in gene info file that matched the background genes = ")
+    print("number of genes in gene info file that matched the background genes = ")
     print(nrow(all_gene_info))
     
-    # we probably have duplicates in the gene info file but this shouldn't be a problem when we use ensembl ids
+    # we probably have duplicates in the gene info file but this shouldn't be a problem if we use ensembl ids
     
     # add a TRUE/FALSE column for whether the gene is a query gene
     gene_info$query <- gene_info[,"gene_name"] %in% query_filt
-    
-    
     
 }
 
@@ -208,16 +236,11 @@ dev.off()
 query_chr <- get_chromosomes(query_filt, gene_info)
 bg_chr    <- get_chromosomes(bg_genes, gene_info)
 
-chr_list <- list(query = query_chr, background = bg_chr)
+chr_list  <- list(query = query_chr, background = bg_chr)
 chr_proportions <- get_chr_percentage(chr_list)
 
 png("chr_plot.png")
 bar_plot(chr_proportions, main = "chr")
 dev.off()
 
-
-
-
-
-write("", file="finished.flag")
-
+write("", file = "finished.flag")
