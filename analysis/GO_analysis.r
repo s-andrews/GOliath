@@ -2,6 +2,7 @@
 #options(encoding="utf-8")
 library(data.table)
 library(plyr)
+library(tidyverse)
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
 source("/data/private/GOliath/analysis/GOliath_functions.r")
@@ -17,28 +18,28 @@ folder.path <- cmdArgs[6]
 setwd(folder.path)
 
 # import the config file
-config.info <- read.delim("config.txt", header=FALSE, row.names=1)
+config.info <- read.delim("config.txt", header = FALSE, row.names = 1)
 
 
 type <- config.info["type",]
 species <- config.info["species",]
 
-if(is.na(type)){
+if (is.na(type)) {
     print("gene list type not detected")
-}	else if(type == "Unordered"){
-    print ("Unordered gene list found")	
-} 	else if(type == "Ranked"){
-    print ("Ranked gene list found")
+}	else if (type == "Unordered") {
+    print("Unordered gene list found")	
+} 	else if (type == "Ranked") {
+    print("Ranked gene list found")
 }	else print("Gene list type not recognised")
 
 print(paste("Using species", species))
 
 # import the query genes
-query_genes <- scan("gene_list.txt", what="character", quiet=TRUE)
+query_genes <- scan("gene_list.txt", what = "character", quiet = TRUE)
 print(paste0(length(query_genes), " query genes imported"))
 
 # import the background genes
-bg_genes <- scan("background_list.txt", what="character", quiet=TRUE)
+bg_genes <- scan("background_list.txt", what = "character", quiet = TRUE)
 print(paste0(length(bg_genes), " background genes imported"))
 
 # clean_text removes spaces, characters and converts to upper case
@@ -62,10 +63,10 @@ go.categories <- process_GMT(gmt.file)
 # this needs sorting properly 
 if (grepl(pattern = "Homo_Sapiens", species)) {
     gene_info_file_location <- "/data/private/GOliath/gene_info_data/Homo sapiens/GRCh38.80_gene_info.txt"
-    all_gene_info <- fread(gene_info_file_location, select=c(1:5,7:11), stringsAsFactors=TRUE, data.table=FALSE)
+    all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
 } else if (grepl(pattern = "Mus musculus", species)) {
     gene_info_file_location <- "/data/private/GOliath/gene_info_data/Mus musculus/GRCm38.80_gene_info.txt"
-    all_gene_info <- fread(gene_info_file_location, select=c(1:5,7:11), stringsAsFactors=TRUE, data.table=FALSE)
+    all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
 } else {
     print("Couldn't find gene info file")
 }
@@ -157,13 +158,12 @@ size_of_bias_categories$number_flagged <- sapply(size_of_bias_categories$bias_so
 sink("summary.txt")
 
 (df_summary <- data.frame("number of significant categories identified" = total_sig_categories,
-                         "number of categories flagged as potential biases" = categories_flagged,
-                         "number of categories not flagged" = categories_not_flagged))
+                          "number of categories flagged as potential biases" = categories_flagged,
+                          "number of categories not flagged" = categories_not_flagged))
 size_of_bias_categories
 sink()
 
 write_delim(size_of_bias_categories, "summary_stats.txt")
-
 
 
 #=================
