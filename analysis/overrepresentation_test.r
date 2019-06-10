@@ -105,7 +105,7 @@ overrep_test <- function(categories, query_genes, bg_genes, min_query = 3,
     }
   }
 
-  df[, 4:5] <- apply(df[, 4:5], 2, signif, digits = sig_digits)
+  df[, 5:6] <- apply(df[, 5:6], 2, signif, digits = sig_digits)
 
   df[order(df$adj_pval), ]
 
