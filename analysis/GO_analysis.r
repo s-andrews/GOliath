@@ -1,8 +1,8 @@
 #rm(list=ls())
 #options(encoding="utf-8")
 library(data.table)
+#library(plyr)
 #library(dplyr) # fails if we do this - the script runs fine but GOliath breaks - system call failed: No child processes
-library(plyr)
 #library(tidyverse)
 
 # these functions will be packaged up so that the package can just be loaded,
@@ -102,18 +102,14 @@ if (sum(!query_genes %in% bg_genes > 0)) {
 #min.genes.in.category <- 3
 #max.genes.in.category <- 5000
 
-# perform the Fishers Exact test to get results
-#go.results <- overrepresentationAnalysis(go.categories, query_filt, bg_genes)
+go_results <- overrep_test(go.categories, query_filt, bg_genes)
 
 # reduce the number of digits in the output
 #go.results$adj.ease.pvalues <- signif(go.results$adj.ease.pvalues, digits=4)
 
-go_results <- overrep_test(go.categories, query_filt, bg_genes)
-
 #==================================
 # check against suspect categories
 #==================================
-#result_table <- read.delim("/data/private/GOliath/jobs/fKnqGgmhXTKGjzSLE5vN/GO_analysis_results.txt")
 suspects <- read.delim("/data/private/GOliath/suspect_GO_categories/suspect_categories.txt")
 
 sig_categories <- rownames(go_results)
@@ -215,12 +211,16 @@ if (!is.null(all_gene_info)) {
 
 print(head(all_gene_info))
 
-#plotting.data <- all_gene_info[,c("GC_content","query")]
-#print(head(plotting.data))#
+query_GC <- get_GC(query_filt, gene_info)
+bg_GC    <- get_GC(bg_genes, gene_info)
 
-#png("GC.png")
-#bar_plot(plotting.data, main = "GC content", xlab = "GC content")
-#dev.off()
+print(head(query_GC))
+
+my_plotting_data <- list(query = query_GC, background = bg_GC)
+
+png("GC.png")
+density_plot(my_plotting_data, main = "GC content", xlab = "GC content")
+dev.off()
 
 #=============
 # length plot
@@ -235,8 +235,9 @@ density_plot(my_plotting_data, log = TRUE, main = "gene lengths")
 dev.off()
 
 
-#Plot which chromosome the genes are on.
-
+#=============
+# chr plot
+#=============
 query_chr <- get_chromosomes(query_filt, gene_info)
 bg_chr    <- get_chromosomes(bg_genes, gene_info)
 
@@ -246,5 +247,6 @@ chr_proportions <- get_chr_percentage(chr_list)
 png("chr_plot.png")
 bar_plot(chr_proportions, main = "chr")
 dev.off()
+
 
 write("", file = "finished.flag")
