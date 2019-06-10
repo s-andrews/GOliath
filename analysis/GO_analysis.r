@@ -1,9 +1,9 @@
 #rm(list=ls())
 #options(encoding="utf-8")
-library(data.table)
+suppressMessages(library(data.table))
 #library(plyr)
-#library(dplyr) # fails if we do this - the script runs fine but GOliath breaks - system call failed: No child processes
-#library(tidyverse)
+#suppressMessages(library(dplyr))# fails if we do this - the script runs fine but GOliath breaks
+suppressMessages(library(tidyverse))
 
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
@@ -145,19 +145,22 @@ total_sig_categories    <- nrow(go_results)
 categories_not_flagged  <- sum(flag_descriptions == "none found")
 categories_flagged      <- sum(flag_descriptions != "none found")
 
-#size_of_bias_categories <- suspects %>%
-#	count(bias_source) %>%
-#    arrange(desc(n))
+size_of_bias_categories <- suspects %>%
+	count(bias_source) %>%
+    arrange(desc(n))
 #number of GO categories flagged with each bias
-#size_of_bias_categories$number_flagged <- sapply(size_of_bias_categories$bias_source, function(y) {
-#  length(grep(x = flag_descriptions, pattern = y, fixed = TRUE))
-#})
+size_of_bias_categories$number_flagged <- sapply(size_of_bias_categories$bias_source, function(y) {
+	grep_text <- paste0("\\b", y, "\\b")
+	length(grep(x = flag_descriptions, pattern = grep_text))
+})
 
 sink("summary_stats.txt")
 
 (df_summary <- data.frame("number of significant categories identified" = total_sig_categories,
                          "number of categories flagged as potential biases" = categories_flagged,
                          "number of categories not flagged" = categories_not_flagged))
+
+as.data.frame(size_of_bias_categories)
 
 sink()
 
