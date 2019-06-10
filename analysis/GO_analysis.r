@@ -1,7 +1,10 @@
 #rm(list=ls())
 #options(encoding="utf-8")
 library(data.table)
+#library(dplyr) # fails if we do this - the script runs fine but GOliath breaks - system call failed: No child processes
 library(plyr)
+library(magrittr)
+#library(tidyverse)
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
 source("/data/private/GOliath/analysis/GOliath_functions.r")
@@ -146,23 +149,24 @@ write.table(go_results, "GO_analysis_results.txt", quote = FALSE, sep = "\t")
 total_sig_categories    <- nrow(go_results)
 categories_not_flagged  <- sum(flag_descriptions == "none found")
 categories_flagged      <- sum(flag_descriptions != "none found")
-size_of_bias_categories <- suspects %>%
-    count(bias_source) %>%
-    arrange(desc(n))
-# number of GO categories flagged with each bias
-size_of_bias_categories$number_flagged <- sapply(size_of_bias_categories$bias_source, function(y) {
-    length(grep(x = flag_descriptions, pattern = y, fixed = TRUE))
-})
 
-sink("summary.txt")
+#size_of_bias_categories <- suspects %>%
+#	count(bias_source) %>%
+#    arrange(desc(n))
+#number of GO categories flagged with each bias
+#size_of_bias_categories$number_flagged <- sapply(size_of_bias_categories$bias_source, function(y) {
+#  length(grep(x = flag_descriptions, pattern = y, fixed = TRUE))
+#})
+
+sink("summary_stats.txt")
 
 (df_summary <- data.frame("number of significant categories identified" = total_sig_categories,
                          "number of categories flagged as potential biases" = categories_flagged,
                          "number of categories not flagged" = categories_not_flagged))
-size_of_bias_categories
+#size_of_bias_categories
 sink()
 
-write_delim(size_of_bias_categories, "summary_stats.txt")
+#write_delim(size_of_bias_categories, "summary_stats.txt")
 
 
 
@@ -210,6 +214,8 @@ if (!is.null(all_gene_info)) {
 #=============
 # The GC plot 
 #=============
+
+print(head(all_gene_info))
 
 #plotting.data <- all_gene_info[,c("GC_content","query")]
 #print(head(plotting.data))#
