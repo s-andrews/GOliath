@@ -161,6 +161,8 @@ td input[type="text"]  {
     padding-right: 0.7em;
     border-radius: 1em;
     margin: 0.1em;
+    cursor: pointer;
+
 }
 
 .public_data {
@@ -184,6 +186,16 @@ td input[type="text"]  {
 .chr {
    background-color: #b15928;
 }
+
+#biasexplanation {
+    position: absolute;
+    display: none;
+    background: white;
+    padding: 0.5em;
+    border-radius: 1em;
+    border: 2px solid black;
+}
+
 
 
 
@@ -244,4 +256,6 @@ td input[type="text"]  {
 #biasesdiv {
     display: none;
 }
+
+
 

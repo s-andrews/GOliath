@@ -1,5 +1,22 @@
 <script>
 
+  var popovers = {
+  "chr": "Genes which were found on a specific chromosome",
+  
+  "public_data": "Gene categories which turned up with unusual frequency when analysing biological replicates in publicly deposited RNA-Seq data",
+
+  "very_long": "Genes which are over XXXkb in length",
+
+  "very_short": "Genes which were less than XXXkb in length",
+
+  "GC_low": "Genes whose gene body was less than XX% GC",
+
+  "GC_high": "Genes whose gene body was more than XX% GC",
+
+  "min10transcripts": "Genes with 10 or more annotated splice variants"
+  }
+
+  
   $(document).ready(function () {
 
   $("#resultstabs ul li").click(function() {
@@ -21,8 +38,28 @@
   if (id == "biasestab") {
   $("#biasesdiv").show();
   }
-
   
+  });
+  
+  $(".bias").click(function(e){
+  
+  var biasclass=$(this).attr('class').split(" ")[1];
+
+  if (biasclass in popovers) {
+  $("#biasexplanation").css({
+  "left": (e.pageX+25)+"px",
+  "top": e.pageY+"px"
+  })
+  $("#biasexplanation").html(popovers[biasclass])
+
+  $("#biasexplanation").show()
+  
+  }
+  });
+
+
+  $("#biasexplanation").click(function(e){
+  $(this).hide();
   });
   
   });
