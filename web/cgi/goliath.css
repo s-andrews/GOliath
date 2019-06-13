@@ -1,8 +1,10 @@
+/** General layout stuff **/
+
 body {
   font-family: 'Pablo Impallari',sans-serif;
   color: #000000;
   background-color: #FFFFFF;
-  margin: 1em;
+  padding: 1em;
   padding: 0;
 }
 
@@ -14,6 +16,8 @@ h2,h3,h4 {
   text-align: center;
   font-size: 200%;
   font-weight: normal;
+  margin: 0;
+  padding: 0.5em;
 }
 
 h2 {
@@ -30,6 +34,13 @@ p {
   line-height: 120%;
 }
 
+textarea {
+  padding: 0;
+  margin: 0;
+  width: 97%;
+  overflow: auto;
+}
+
 select {
     font-size: 120%;
     width: 100%;
@@ -43,11 +54,63 @@ input {
     appearnace: none;
 }
 
+.center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
 table {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
 }
+
+/** The tabs in the results output **/
+
+# resultstabs {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+#resultstabs ul  {
+    display: table;
+    width: 95%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border:0;
+    margin-left: 2.5%;
+}
+
+#resultstabs ul  li {
+    display: table-cell;
+    text-align: center;
+    color:white;
+    background: darkgrey;
+    margin: 2px;
+    padding: 1em;
+}
+
+#resultstabs ul  li.selected {
+    background: #C00;
+}
+
+#resultstabs ul  li:hover {
+    background: #C00;
+    cursor: pointer;
+}
+
+.resultdiv {
+    width: 95%;
+    margin-left: 2.5%;
+    margin-top: 0;
+    padding-top: 0;
+    background: #EEE;
+}
+
+/** The results table **/
 
 table.results {
     width: 80%;
@@ -55,8 +118,8 @@ table.results {
 
 th {
   text-align: center;
-  background-color: #DDDDDD;
-  color: #000000;
+  background-color: #333333;
+  color: white;
   padding: 0.6em;
   font-size: 120%;
   font-weight: normal;
@@ -89,15 +152,7 @@ td input[type="text"]  {
 }
 
 
-
-#menu {
-  float: left;
-  width: 150px;
-  margin-left: -1px;
-  padding: 10px;
-  line-height: 150%;
-
-}
+/** The footer **/
 
 #header {
   border: 0;
@@ -118,60 +173,6 @@ td input[type="text"]  {
 }
 
 
-#menu ul {
-  margin:0;
-  padding: 0;
-  border: 0;
-}
-
-#menu li {
-  text-align:left;
-  list-style-type: none;
-  font-weight: bold;
-}
-
-#menu li a {
-  text-decoration: none;
-  display: block;
-  padding: 0.2em;
-  color: #00506E;
-}
-
-#menu li a.admin {
-  color: #CC0000;
-}
-
-#menu li a:hover {
-  text-decoration: none;
-  background-color: #00506E;
-  color: white;
-}
-
-#menu li a.admin:hover {
-  background-color: #CC0000;
-}
-
-
-#main {
-  padding: 0px;
-  margin-left: 180px;
-  border-left: 1px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
-
-#infobar {
-  margin-left: auto;
-  margin-right: auto;
-  background-color: #4EA1AA;
-  width: 98%;
-  font-size: 90%;
-  text-align: left;
-  padding-top :0.4em;
-  padding-bottom :0.4em;
-  padding-left :2%;
-  color: white;
-}
 
 
 #footer {
@@ -196,36 +197,15 @@ td input[type="text"]  {
   color: #C80000;
 }
 
-.center {
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
- }
-
-p.warning {
-
-  color: red;
-  font-size: 120%;
-  text-align: center;
- }
-
-div.note {
-  background-color: #DDDDDD;
-  padding: 0.5em;
-  margin-top: 0.5em;
+/** The properties tab **/
+#propertydiv {
+    display: none;
 }
 
-div.note h4 {
-  margin: 0;
-}
-div.note p {
-  margin: 0;
-  margin-top: 0.5em;
+
+
+/** The Biases tab **/
+#biasesdiv {
+    display: none;
 }
 
-textarea {
-  padding: 0;
-  margin: 0;
-  width: 97%;
-  overflow: auto;
-}

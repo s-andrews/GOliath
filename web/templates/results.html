@@ -2,6 +2,16 @@
 
 <h2>Results for job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --></h2>
 
+<div id="resultstabs">
+
+  <ul>
+    <li id="tabletab" class="selected">Results Table</li>
+    <li id="propertytab">Properties</li>
+    <li id="biasestab">Biases</li>
+  </ul>
+  
+</div>
+<div class="resultdiv" id="tablediv">
 <h3>Hit table</h3>
 
 <!-- TMPL_IF NAME=HIT_TABLE -->
@@ -32,6 +42,21 @@
 
 <!-- /TMPL_IF -->
 
+</div>
+
+<!-- The content for the search properties -->
+<div class="resultdiv" id="propertydiv">
+<h3>Query and Background Properties</h3>
+
+</div>
+
+
+<!-- The content for the biases -->
+<div class="resultdiv" id="biasesdiv">
+<h3>Biases</h3>
+
+</div>
+
 <!-- TMPL_ELSE --><!-- TMPL_INCLUDE NAME="refresh_header.html" -->
 
 <h2>Job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --> is running...</h2>
@@ -59,5 +84,6 @@ Sorry about that.
 <!-- /TMPL_IF --> 
 
 
-
+<!-- TMPL_INCLUDE NAME="javascript.html" -->
 <!-- TMPL_INCLUDE NAME="footer.html" -->
+
