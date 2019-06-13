@@ -125,21 +125,22 @@ th {
   font-weight: normal;
 }
 
-table.results th {
-    font-size: 100%;
-}
-
-table.results td {
-    font-size:80%;
-    background-color: white;
-}
-
 td {
   text-align: center;
   background-color: #DDDDDD;
   color: #444444;
   padding: 0.6em;
   font-size: 100%;
+}
+
+table.results th {
+    font-size: 110%;
+}
+
+table.results td {
+    font-size:90%;
+    background-color: white;
+    padding: 0.2em;
 }
 
 td.center {
@@ -150,6 +151,41 @@ td.center {
 td input[type="text"]  {
   width: 95%;
 }
+
+.bias {
+    display: inline-block;
+    background-color: grey;
+    color:white;
+    padding: 0.2em;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    border-radius: 1em;
+    margin: 0.1em;
+}
+
+.public_data {
+   background-color: #1f78b4;
+}
+.very_long {
+   background-color: #33a02c;
+}
+.very_short {
+   background-color: #fb9199;
+}
+.GC_low {
+   background-color: #ff7f00;
+}
+.GC_high {
+   background-color: #fdbf6f;
+}
+.min10transcripts {
+   background-color: #6a3d9a;
+}
+.chr {
+   background-color: #b15928;
+}
+
+
 
 
 /** The footer **/

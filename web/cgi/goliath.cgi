@@ -308,6 +308,18 @@ sub show_job {
 	    
 	    $db =~ s/[\%_]/ /g;
 	    $name =~ s/_/ /g;
+
+	    my @biases;
+	    if ($potential_bias ne "none found") {
+		foreach my $bias (split(/\s*,\s*/,$potential_bias)) {
+		    my $class=$bias;
+		    $class =~ s/ .*//;
+		    $class =~ s/\d+$//;
+		    push @biases, {BIAS => $bias, CLASS=>$class};
+		}
+	    }
+
+	    
 	    
 	    push @hit_table, {
 		GO_NAME => $name,
@@ -316,7 +328,7 @@ sub show_job {
 		BACKGROUND_COUNT => $background_count,
 		CATEGORY_COUNT => $category_count,
 		FDR => $fdr,
-		POTENTIAL_BIAS => $potential_bias,
+		POTENTIAL_BIAS => \@biases,
 		ENRICHMENT => $enrichment,
 	    };
 

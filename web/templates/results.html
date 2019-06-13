@@ -17,7 +17,7 @@
 <!-- TMPL_IF NAME=HIT_TABLE -->
 <table class="results">
   <tr>
-    <th>GO category</th>
+    <th>Gene Set</th>
     <th>Source</th>
     <th>Query count</th>
     <th>Background count</th>
@@ -35,7 +35,11 @@
     <td><!-- TMPL_VAR NAME=CATEGORY_COUNT ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=FDR ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=ENRICHMENT ESCAPE=HTML --></td>
-    <td><!-- TMPL_VAR NAME=POTENTIAL_BIAS ESCAPE=HTML --></td>
+    <td>
+      <!-- TMPL_LOOP NAME=POTENTIAL_BIAS -->
+      <span class="bias <!-- TMPL_VAR NAME=CLASS ESCAPE=HTML -->"><!-- TMPL_VAR NAME=BIAS ESCAPE=HTML --></span>
+      <!-- /TMPL_LOOP -->
+    </td>
   </tr>
   <!-- /TMPL_LOOP -->
 
