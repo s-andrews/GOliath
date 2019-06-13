@@ -114,14 +114,23 @@ suspects <- read.delim(here::here("suspect_GO_categories","suspect_categories.tx
 
 sig_categories <- rownames(go_results)
 
+get_id <- function(description){
+	ifelse(grepl(x= description, pattern = "%GO:"),
+		strsplit(description, split = "%", fixed = TRUE)[[1]][3], 
+		description
+	)
+}
+
+ids <- sapply(sig_categories, get_id)
+		
 # in case the categories are in the format "RESPONSE TO CHEMICAL%GOBP%GO:0042221,
 # we split by %. If there are no % characters present, it should still work fine.
-split_categories <- strsplit(sig_categories, split = "%", fixed = TRUE)
+#split_categories <- strsplit(sig_categories, split = "%", fixed = TRUE)
 
 # it doesn't work taking the last category as the wikipathways have the organism as the 4th field.
 # we'll go for the 3rd category
 #ids <- sapply(split_categories, tail, n=1)
-ids <- sapply(split_categories, "[", 3)
+#ids <- sapply(split_categories, "[", 3)
 
 # clean up any whitespace so we can do an exact match
 flag_locations <- sapply(ids, grep, suspects$GO_ID)

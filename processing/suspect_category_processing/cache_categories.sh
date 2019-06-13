@@ -12,22 +12,19 @@ for file in $all_files; do
 	description=${filename%".txt"}; # remove .txt from filename
 	first_col=$(cut -f1 $file)
 	
-	# if the whole description etc is present e.g. HABITUATION%GOBP%GO:0046959, extract GO id
-	if [[ $first_col == *"%"* ]]; then
-		cut -f1 $file | while IFS='%' read -ra array; do
-			for i in "${array[@]}"; do
+	cut -f1 $file | while read -r line; do
+		if [[ $line =~ .*%GO:.* ]]; then
+			IFS='%' read -ra category_info <<< $line					
+			for i in "${category_info[@]}"; do
 				if [[ $i =~ .*GO:.* ]]; then
-					# write out to file						
 					echo -e "${i}\t${description}" >> $outfile;
-				fi  
+				fi
 			done
-		done
-	else
-		cut -f1 $file | while IFS='\n' read -ra array; do			
-			for i in "${array[@]}"; do			
-				echo -e "${i}\t${description}" >> $outfile;
-			done
-		done	
-	fi
-	echo -e "added $description categories to file"
-done
+		else
+		# some descriptions are split by % but are not GO IDs - we'll just use the whole description as sometimes the IDs
+		# can be difficult to extract
+		# some descriptions do not contain %
+			echo -e "$line\t${description}" >> $outfile;
+		fi
+	done	
+done					
