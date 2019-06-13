@@ -2,11 +2,8 @@ suppressMessages(library(data.table))
 suppressMessages(library(tidyverse))
 suppressMessages(library(here))
 
-print(here::here("analysis","GOliath_functions.R"))
-
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
-
 source(here::here("analysis","GOliath_functions.r"))
 source(here::here("analysis","overrepresentation_test.r"))
 source(here::here("analysis","plots.R"))
@@ -28,12 +25,13 @@ species <- config.info["species",]
 if (is.na(type)) {
     print("gene list type not detected")
 }	else if (type == "Unordered") {
-    print("Unordered gene list found")	
+    print("Using unordered gene list")	
 } 	else if (type == "Ranked") {
-    print("Ranked gene list found")
+    print("Using ranked gene list")
 }	else print("Gene list type not recognised")
 
-print(paste("Using species", species))
+species_tail <- as.vector(str_split(x, "/", simplify = TRUE)) %>% tail(n=2)
+print(paste("Using species", species_tail))
 
 # import the query genes
 query_genes <- scan("gene_list.txt", what = "character", quiet = TRUE)
