@@ -2,26 +2,44 @@
 
 <h2>Results for job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --></h2>
 
+<div id="resultstabs">
+
+  <ul>
+    <li id="tabletab" class="selected">Results Table</li>
+    <li id="propertytab">Properties</li>
+    <li id="biasestab">Biases</li>
+  </ul>
+  
+</div>
+<div class="resultdiv" id="tablediv">
 <h3>Hit table</h3>
 
 <!-- TMPL_IF NAME=HIT_TABLE -->
 <table class="results">
   <tr>
-    <th>GO category</th>
+    <th>Gene Set</th>
+    <th>Source</th>
     <th>Query count</th>
     <th>Background count</th>
     <th>Category count</th>
     <th>FDR</th>
-	<th>Potential bias</th>
+    <th>Enrichment</th>
+    <th>Potential bias</th>
   </tr>
   <!-- TMPL_LOOP NAME=HIT_TABLE -->
   <tr>
     <td><!-- TMPL_VAR NAME=GO_NAME ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=SOURCE ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=QUERY_COUNT ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=BACKGROUND_COUNT ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=CATEGORY_COUNT ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=FDR ESCAPE=HTML --></td>
-	<td><!-- TMPL_VAR NAME=POTENTIAL_BIAS ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=ENRICHMENT ESCAPE=HTML --></td>
+    <td>
+      <!-- TMPL_LOOP NAME=POTENTIAL_BIAS -->
+      <span class="bias <!-- TMPL_VAR NAME=CLASS ESCAPE=HTML -->"><!-- TMPL_VAR NAME=BIAS ESCAPE=HTML --></span>
+      <!-- /TMPL_LOOP -->
+    </td>
   </tr>
   <!-- /TMPL_LOOP -->
 
@@ -31,6 +49,40 @@
 <p class=center>No significant category hits</p>
 
 <!-- /TMPL_IF -->
+
+</div>
+
+<!-- The content for the search properties -->
+<div class="resultdiv" id="propertydiv">
+<h3>Query and Background Properties</h3>
+
+<h4>Chromosomal Locations</h4>
+
+<p class="graph center">
+  <img src="<!-- TMPL_VAR NAME=CHROMOSOME_GRAPH ESCAPE=HTML -->" alt="Chromosome Graph">
+</p>
+
+<h4>Gene Lengths</h4>
+
+<p class="graph center">
+  <img src="<!-- TMPL_VAR NAME=GENELENGTH_GRAPH ESCAPE=HTML -->" alt="Gene Length Graph">
+</p>
+
+<h4>GC Content</h4>
+
+<p class="graph center">
+  <img src="<!-- TMPL_VAR NAME=GC_GRAPH ESCAPE=HTML -->" alt="GC Content Graph">
+</p>
+
+
+</div>
+
+
+<!-- The content for the biases -->
+<div class="resultdiv" id="biasesdiv">
+<h3>Biases</h3>
+
+</div>
 
 <!-- TMPL_ELSE --><!-- TMPL_INCLUDE NAME="refresh_header.html" -->
 
@@ -59,5 +111,6 @@ Sorry about that.
 <!-- /TMPL_IF --> 
 
 
-
+<!-- TMPL_INCLUDE NAME="javascript.html" -->
 <!-- TMPL_INCLUDE NAME="footer.html" -->
+

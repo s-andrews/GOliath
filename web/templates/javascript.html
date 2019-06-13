@@ -1,0 +1,29 @@
+<script>
+
+  $(document).ready(function () {
+
+  $("#resultstabs ul li").click(function() {
+  
+  $("#resultstabs ul li").removeClass("selected");
+  $(this).addClass("selected");
+  id = $(this).attr("id");
+
+  $(".resultdiv").hide()
+
+  if (id == "tabletab") {
+  $("#tablediv").show();
+  }
+
+  if (id == "propertytab") {
+  $("#propertydiv").show();
+  }
+
+  if (id == "biasestab") {
+  $("#biasesdiv").show();
+  }
+
+  
+  });
+  
+  });
+</script>

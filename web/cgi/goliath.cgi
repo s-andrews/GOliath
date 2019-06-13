@@ -5,6 +5,7 @@ use CGI;
 use FindBin qw($RealBin);
 use File::Glob;
 use HTML::Template;
+use MIME::Base64;
 #use CGI::Carp qw(fatalsToBrowser);
 
 #######################################################################
@@ -302,25 +303,49 @@ sub show_job {
 
 	while (<IN>) {
 	    chomp;
-	    my ($go_name,$query_count,$background_count,$category_count,$pval,$fdr,$potential_bias) = split(/\t/);
+	    my ($go_name,$query_count,$background_count,$category_count,$enrichment, $pval,$fdr,$potential_bias) = split(/\t/);
 
+	    my ($name, $db) = split(/\%/,$go_name,2);
+	    
+	    $db =~ s/[\%_]/ /g;
+	    $name =~ s/_/ /g;
+
+	    my @biases;
+	    if ($potential_bias ne "none found") {
+		foreach my $bias (split(/\s*,\s*/,$potential_bias)) {
+		    my $class=$bias;
+		    $class =~ s/ .*//;
+		    $class =~ s/\d+$//;
+		    push @biases, {BIAS => $bias, CLASS=>$class};
+		}
+	    }
+
+	    
+	    
 	    push @hit_table, {
-		GO_NAME => $go_name,
+		GO_NAME => $name,
+		SOURCE => $db,
 		QUERY_COUNT => $query_count,
 		BACKGROUND_COUNT => $background_count,
 		CATEGORY_COUNT => $category_count,
 		FDR => $fdr,
-		POTENTIAL_BIAS => $potential_bias
+		POTENTIAL_BIAS => \@biases,
+		ENRICHMENT => $enrichment,
 	    };
 
 	}
 
 	$template -> param(HIT_TABLE => \@hit_table);
-							
-
-
     }
 
+
+    # Add the Properties images
+    $template -> param(
+	CHROMOSOME_GRAPH => encode_image("chr_plot.png"),
+	GENELENGTH_GRAPH => encode_image("gene_lengths.png"),
+	GC_GRAPH => encode_image("GC.png"),
+    );
+    
 
     print $template -> output();
 
@@ -364,5 +389,19 @@ sub read_config {
     }
 
 
+}
+
+sub encode_image {
+
+    my ($file) = @_;
+    
+    my $data;
+
+    open (IMAGE,$file) or die $!;
+    binmode(IMAGE);
+
+    $data .= $_ while (<IMAGE>);
+
+    return "data:image/png;base64," . MIME::Base64::encode_base64($data);
 }
 
