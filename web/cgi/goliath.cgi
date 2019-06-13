@@ -304,6 +304,8 @@ sub show_job {
 	    chomp;
 	    my ($go_name,$query_count,$background_count,$category_count,$pval,$fdr,$potential_bias) = split(/\t/);
 
+	    $go_name =~ s/\%/ /g;
+	    
 	    push @hit_table, {
 		GO_NAME => $go_name,
 		QUERY_COUNT => $query_count,
