@@ -18,6 +18,7 @@
 <table class="results">
   <tr>
     <th>GO category</th>
+    <th>Source</th>
     <th>Query count</th>
     <th>Background count</th>
     <th>Category count</th>
@@ -28,6 +29,7 @@
   <!-- TMPL_LOOP NAME=HIT_TABLE -->
   <tr>
     <td><!-- TMPL_VAR NAME=GO_NAME ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=SOURCE ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=QUERY_COUNT ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=BACKGROUND_COUNT ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=CATEGORY_COUNT ESCAPE=HTML --></td>
