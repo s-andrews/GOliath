@@ -1,16 +1,16 @@
-#rm(list=ls())
-#options(encoding="utf-8")
 suppressMessages(library(data.table))
-#library(plyr)
-#suppressMessages(library(dplyr))# fails if we do this - the script runs fine but GOliath breaks
 suppressMessages(library(tidyverse))
+suppressMessages(library(here))
+
+print(here::here("analysis","GOliath_functions.R"))
 
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
-source("/data/private/GOliath/analysis/GOliath_functions.r")
-source("/data/private/GOliath/analysis/overrepresentation_test.r")
-source("/data/private/GOliath/analysis/plots.R")
-source("/data/private/GOliath/analysis/utilities.R")
+
+source(here::here("analysis","GOliath_functions.r"))
+source(here::here("analysis","overrepresentation_test.r"))
+source(here::here("analysis","plots.R"))
+source(here::here("analysis","utilities.R"))
 
 # pass in the job folder as the argument
 cmdArgs <- commandArgs()
@@ -63,10 +63,10 @@ go.categories <- process_GMT(gmt.file)
 #===========================
 # this needs sorting properly 
 if (grepl(pattern = "Homo_Sapiens", species)) {
-    gene_info_file_location <- "/data/private/GOliath/gene_info_data/Homo sapiens/GRCh38.80_gene_info.txt"
+    gene_info_file_location <- here::here("gene_info_data/Homo sapiens/","GRCh38.80_gene_info.txt")
     all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
 } else if (grepl(pattern = "Mus musculus", species)) {
-    gene_info_file_location <- "/data/private/GOliath/gene_info_data/Mus musculus/GRCm38.80_gene_info.txt"
+    gene_info_file_location <- here::here("gene_info_data/Mus musculus","GRCm38.80_gene_info.txt")
     all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
 } else {
     print("Couldn't find gene info file")
@@ -110,7 +110,7 @@ go_results <- overrep_test(go.categories, query_filt, bg_genes)
 #==================================
 # check against suspect categories
 #==================================
-suspects <- read.delim("/data/private/GOliath/suspect_GO_categories/suspect_categories.txt")
+suspects <- read.delim(here::here("suspect_GO_categories","suspect_categories.txt"))
 
 sig_categories <- rownames(go_results)
 
