@@ -336,15 +336,17 @@ sub show_job {
 	}
 
 	$template -> param(HIT_TABLE => \@hit_table);
+
+
+
+	# Add the Properties images
+	$template -> param(
+	    CHROMOSOME_GRAPH => encode_image("chr_plot.png"),
+	    GENELENGTH_GRAPH => encode_image("gene_lengths.png"),
+	    GC_GRAPH => encode_image("GC.png"),
+	);
     }
 
-
-    # Add the Properties images
-    $template -> param(
-	CHROMOSOME_GRAPH => encode_image("chr_plot.png"),
-	GENELENGTH_GRAPH => encode_image("gene_lengths.png"),
-	GC_GRAPH => encode_image("GC.png"),
-    );
     
 
     print $template -> output();
