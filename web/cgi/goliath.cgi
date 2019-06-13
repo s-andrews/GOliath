@@ -5,6 +5,7 @@ use CGI;
 use FindBin qw($RealBin);
 use File::Glob;
 use HTML::Template;
+use MIME::Base64;
 #use CGI::Carp qw(fatalsToBrowser);
 
 #######################################################################
@@ -335,11 +336,16 @@ sub show_job {
 	}
 
 	$template -> param(HIT_TABLE => \@hit_table);
-							
-
-
     }
 
+
+    # Add the Properties images
+    $template -> param(
+	CHROMOSOME_GRAPH => encode_image("chr_plot.png"),
+	GENELENGTH_GRAPH => encode_image("gene_lengths.png"),
+	GC_GRAPH => encode_image("GC.png"),
+    );
+    
 
     print $template -> output();
 
@@ -383,5 +389,19 @@ sub read_config {
     }
 
 
+}
+
+sub encode_image {
+
+    my ($file) = @_;
+    
+    my $data;
+
+    open (IMAGE,$file) or die $!;
+    binmode(IMAGE);
+
+    $data .= $_ while (<IMAGE>);
+
+    return "data:image/png;base64," . MIME::Base64::encode_base64($data);
 }
 
