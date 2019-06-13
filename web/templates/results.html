@@ -22,7 +22,8 @@
     <th>Background count</th>
     <th>Category count</th>
     <th>FDR</th>
-	<th>Potential bias</th>
+    <th>Enrichment</th>
+    <th>Potential bias</th>
   </tr>
   <!-- TMPL_LOOP NAME=HIT_TABLE -->
   <tr>
@@ -31,7 +32,8 @@
     <td><!-- TMPL_VAR NAME=BACKGROUND_COUNT ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=CATEGORY_COUNT ESCAPE=HTML --></td>
     <td><!-- TMPL_VAR NAME=FDR ESCAPE=HTML --></td>
-	<td><!-- TMPL_VAR NAME=POTENTIAL_BIAS ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=ENRICHMENT ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=POTENTIAL_BIAS ESCAPE=HTML --></td>
   </tr>
   <!-- /TMPL_LOOP -->
 

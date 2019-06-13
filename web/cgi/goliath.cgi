@@ -302,7 +302,7 @@ sub show_job {
 
 	while (<IN>) {
 	    chomp;
-	    my ($go_name,$query_count,$background_count,$category_count,$pval,$fdr,$potential_bias) = split(/\t/);
+	    my ($go_name,$query_count,$background_count,$category_count,$enrichment, $pval,$fdr,$potential_bias) = split(/\t/);
 
 	    $go_name =~ s/\%/ /g;
 	    
@@ -312,7 +312,8 @@ sub show_job {
 		BACKGROUND_COUNT => $background_count,
 		CATEGORY_COUNT => $category_count,
 		FDR => $fdr,
-		POTENTIAL_BIAS => $potential_bias
+		POTENTIAL_BIAS => $potential_bias,
+		ENRICHMENT => $enrichment,
 	    };
 
 	}
