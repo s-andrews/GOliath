@@ -1,11 +1,12 @@
 suppressMessages(library(data.table))
 suppressMessages(library(tidyverse))
 suppressMessages(library(here))
+library(runGOA)
 
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
-source(here::here("analysis","GOliath_functions.r"))
-source(here::here("analysis","overrepresentation_test.r"))
+#source(here::here("analysis","GOliath_functions.r"))
+#source(here::here("analysis","overrepresentation_test.r"))
 source(here::here("analysis","plots.R"))
 source(here::here("analysis","utilities.R"))
 
@@ -30,7 +31,7 @@ if (is.na(type)) {
     print("Using ranked gene list")
 }	else print("Gene list type not recognised")
 
-species_tail <- as.vector(str_split(x, "/", simplify = TRUE)) %>% tail(n=2)
+species_tail <- as.vector(str_split(species, "/", simplify = TRUE)) %>% tail(n=2)
 print(paste("Using species", species_tail))
 
 # import the query genes
@@ -42,19 +43,32 @@ bg_genes <- scan("background_list.txt", what = "character", quiet = TRUE)
 print(paste0(length(bg_genes), " background genes imported"))
 
 # clean_text removes spaces, characters and converts to upper case
-query_genes <- clean_text(query_genes)
-bg_genes <- clean_text(bg_genes)
+query_genes <- runGOA::clean_text(query_genes)
+bg_genes <- runGOA::clean_text(bg_genes)
+print(head(query_genes))
+print(head(bg_genes))
 
 # file that contains the functional categories and genes within them
-species <- as.character(species)
-gmt.file.name <- paste0(species, "/", (list.files(species))[1])
-print("GO file")
-print(gmt.file.name)
-gmt.file <- scan(gmt.file.name, sep = "\n", what = "", quiet = TRUE)
-print(paste0(length(gmt.file), " categories imported"))
+#species <- as.character(species)
+#gmt.file.name <- paste0(species, "/", (list.files(species))[1])
+#print("GO file")
+#print(gmt.file.name)
+#gmt.file <- scan(gmt.file.name, sep = "\n", what = "", quiet = TRUE)
+#print(paste0(length(gmt.file), " categories imported"))
+#
+## parse the gmt file
+#go.categories <- process_GMT(gmt.file)
 
-# parse the gmt file
-go.categories <- process_GMT(gmt.file)
+
+if (grepl(pattern = "Homo_Sapiens", species)) {
+    go.categories <- human_categories
+} else if (grepl(pattern = "Mus musculus", species)) {
+    go.categories <- mouse_categories
+} else {
+    print("Couldn't find GO category file")
+}
+
+
 
 #===========================
 # import the gene info file
@@ -88,12 +102,14 @@ query_genes <- remove_duplicates(query_genes)
 
 
 # check whether all the query genes are in the background genes
+query_filt <- query_genes
 if (sum(!query_genes %in% bg_genes > 0)) {
     print("not all query genes found in background genes")
     print(query_genes[!query_genes %in% bg_genes])
     
     query_filt <- query_genes[query_genes %in% bg_genes]
 }	
+
 #=============================================
 # filter options that aren't implemented here
 #=============================================
@@ -102,77 +118,98 @@ if (sum(!query_genes %in% bg_genes > 0)) {
 
 go_results <- overrep_test(go.categories, query_filt, bg_genes)
 
-# reduce the number of digits in the output
-#go.results$adj.ease.pvalues <- signif(go.results$adj.ease.pvalues, digits=4)
+if(is.null(go_results)){
+	warning("no significant results found")
+	write.table(go_results, "GO_analysis_results.txt", quote = FALSE, sep = "\t")
+} else {	
 
-#==================================
-# check against suspect categories
-#==================================
-suspects <- read.delim(here::here("suspect_GO_categories","suspect_categories.txt"))
+	#==================================
+	# check against suspect categories
+	#==================================
+	suspects <- read.delim(here::here("suspect_GO_categories","suspect_categories.txt"))
 
-sig_categories <- rownames(go_results)
+	print("read the suspect file")
 
-get_id <- function(description){
-	ifelse(grepl(x= description, pattern = "%GO:"),
-		strsplit(description, split = "%", fixed = TRUE)[[1]][3], 
-		description
-	)
-}
+	sig_categories <- rownames(go_results)
 
-ids <- sapply(sig_categories, get_id)
+	# it doesn't work just taking the last category as the wikipathways have the organism as the 4th field.
+	# get_id <- function(description){
+		# ifelse(grepl(x= description, pattern = "%GO:"),
+			# strsplit(description, split = "%", fixed = TRUE)[[1]][3], 
+			# description
+		# )
+	# }
+
+	get_id <- function(description){
+		if(grepl(x = description, pattern = "%GO:")) {
+			strsplit(description, split = "%", fixed = TRUE)[[1]][3] 
+		} else if (grepl(x = description, pattern = "reactome", ignore.case = TRUE)){
+			strsplit(description, split = "%", fixed = TRUE)[[1]][3]
+		} else{
+			description
+		}	
+	}
+
+	ids <- sapply(sig_categories, get_id)
+			
+	# clean up any whitespace so we can do an exact match
+	flag_locations <- lapply(ids, grep, suspects$GO_ID)
+
+	get_description <- function(locations, descriptions){
+		paste0(descriptions[locations], collapse = ", ")
+	}
+
+	flag_descriptions <- sapply(flag_locations, get_description, suspects$bias_source)
+
+	flag_descriptions[flag_descriptions == ""] <- "none found"
+
+	go_results$potential_bias <- flag_descriptions
+
+	write.table(go_results, "GO_analysis_results.txt", quote = FALSE, sep = "\t")
+
+	#=================
+	# summary stats
+	#=================
+	total_sig_categories    <- nrow(go_results)
+	categories_not_flagged  <- sum(flag_descriptions == "none found")
+	categories_flagged      <- sum(flag_descriptions != "none found")
+
+  print("printing the size of categories flagged and unflagged")
+	print(total_sig_categories)  
+	print(categories_not_flagged)
+	print(categories_flagged)
+
+	size_of_bias_categories <- suspects %>%
+		count(bias_source) %>%
+		arrange(desc(n))
 		
-# in case the categories are in the format "RESPONSE TO CHEMICAL%GOBP%GO:0042221,
-# we split by %. If there are no % characters present, it should still work fine.
-#split_categories <- strsplit(sig_categories, split = "%", fixed = TRUE)
+	#number of GO categories flagged with each bias
+	size_of_bias_categories$number_flagged <- sapply(size_of_bias_categories$bias_source, function(y) {
+		grep_text <- paste0("\\b", y, "\\b")
+		length(grep(x = flag_descriptions, pattern = grep_text))
+	})
 
-# it doesn't work taking the last category as the wikipathways have the organism as the 4th field.
-# we'll go for the 3rd category
-#ids <- sapply(split_categories, tail, n=1)
-#ids <- sapply(split_categories, "[", 3)
+  df_summary <- data.frame("number of significant categories identified" = total_sig_categories,
+             "number of categories flagged as potential biases" = categories_flagged,
+             "number of categories not flagged" = categories_not_flagged)
 
-# clean up any whitespace so we can do an exact match
-flag_locations <- sapply(ids, grep, suspects$GO_ID)
 
-get_description <- function(locations, descriptions){
-    paste0(descriptions[locations], collapse = ", ")
+	sink("summary_stats.txt")
+
+# The df_summary would probably be better as some sprintf statements
+
+  # print(paste0("number of significant categories identified = ", total_sig_categories))
+  # print(paste0("number of categories flagged as potential biases = ", categories_flagged))       
+  # print(paste0("number of categories not flagged = ", categories_not_flagged))
+  print(as.data.frame(size_of_bias_categories))
+
+	sink()
+
+  print("I'd like this df info")
+  df_summary
+  print("And this category size info")
+  as.data.frame(size_of_bias_categories)
 }
-
-flag_descriptions <- sapply(flag_locations, get_description, suspects$bias_source)
-
-flag_descriptions[flag_descriptions == ""] <- "none found"
-
-go_results$potential_bias <- flag_descriptions
-
-write.table(go_results, "GO_analysis_results.txt", quote = FALSE, sep = "\t")
-
-#=================
-# summary stats
-#=================
-total_sig_categories    <- nrow(go_results)
-categories_not_flagged  <- sum(flag_descriptions == "none found")
-categories_flagged      <- sum(flag_descriptions != "none found")
-
-size_of_bias_categories <- suspects %>%
-	count(bias_source) %>%
-    arrange(desc(n))
-#number of GO categories flagged with each bias
-size_of_bias_categories$number_flagged <- sapply(size_of_bias_categories$bias_source, function(y) {
-	grep_text <- paste0("\\b", y, "\\b")
-	length(grep(x = flag_descriptions, pattern = grep_text))
-})
-
-sink("summary_stats.txt")
-
-(df_summary <- data.frame("number of significant categories identified" = total_sig_categories,
-                         "number of categories flagged as potential biases" = categories_flagged,
-                         "number of categories not flagged" = categories_not_flagged))
-
-as.data.frame(size_of_bias_categories)
-
-sink()
-
-#write_delim(size_of_bias_categories, "summary_stats.txt")
-
 
 #=================
 # screening plots
@@ -257,6 +294,5 @@ chr_proportions <- get_chr_percentage(chr_list)
 png("chr_plot.png")
 bar_plot(chr_proportions, main = "chr")
 dev.off()
-
 
 write("", file = "finished.flag")

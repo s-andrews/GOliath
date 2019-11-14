@@ -77,7 +77,7 @@ density_plot <- function(plotting_data, main = "", xlab = "", log = FALSE,
 #' bar_plot(chromosomes)
 #' bar_plot(chromosomes, cex_names = 0.8, col = topo.colors(2), ylab = "% of genes", xlab = "chromosome")
 
-bar_plot <- function(plotting_data, main = "", xlab = "",  ylab = "%", las = 1,
+bar_plot <- function(plotting_data, main = "", xlabel = "",  ylabel = "%", las = 1,
                      dataset_names = colnames(plotting_data), order_numerically = FALSE,
                      ordered_categories = NULL, plot_differences = FALSE,
                      cex_y_axis = par("cex.axis"), cex_names = par("cex.axis"),
@@ -97,16 +97,21 @@ bar_plot <- function(plotting_data, main = "", xlab = "",  ylab = "%", las = 1,
 
   ifelse(is.null(dataset_names), legend_text <- "", legend_text <- dataset_names)
 
+  print(t(plotting_data))
+
   if (plot_differences == FALSE) {
 
     ifelse(is.null(col), colours <- 1:ncol(plotting_data), colours <- col)
 
+    t_plot <- t(plotting_data)
+    
     barplot(
-      t(plotting_data),
+      t_plot[, ncol(t_plot):1],
       beside = T,
+      horiz = TRUE,
       main = main,
-      xlab = xlab,
-      ylab = ylab,
+      xlab = ylabel,
+      ylab = xlabel,
       las = las,
       col = colours,
       cex.names = cex_names,
@@ -116,7 +121,7 @@ bar_plot <- function(plotting_data, main = "", xlab = "",  ylab = "%", las = 1,
     if (legend == TRUE) {
       legend_colours <- colours
       legend(
-        "topright",
+        "bottomright",
         legend = legend_text,
         fill = legend_colours,
         bty = "n",

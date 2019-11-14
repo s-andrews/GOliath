@@ -1,23 +1,131 @@
 <script>
 
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        var min = parseInt( $('#min_query').val(), 10 );
+        var max = parseInt( $('#max_query').val(), 10 );
+        var query_count = parseFloat( data[2] )
+ 
+        if ( ( isNaN( min ) && isNaN( max ) ) ||
+             ( isNaN( min ) && query_count <= max ) ||
+             ( min <= query_count   && isNaN( max ) ) ||
+             ( min <= query_count   && age <= max ) )
+        {
+            return true;
+        }
+        return false;
+    }
+);
+
+
   var popovers = {
   "chr": "Genes which were found on a specific chromosome",
   
   "public_data": "Gene categories which turned up with unusual frequency when analysing biological replicates in publicly deposited RNA-Seq data",
 
-  "very_long": "Genes which are over XXXkb in length",
+  "very_long": "Longest 5% of genes in the genome",
 
-  "very_short": "Genes which were less than XXXkb in length",
+  "long": "Longest 10% of genes in the genome",
 
-  "GC_low": "Genes whose gene body was less than XX% GC",
+  "very_short": "Genes which were less than 111bp in length",
 
-  "GC_high": "Genes whose gene body was more than XX% GC",
+  "short": "Genes which were less than 194bp in length",
 
-  "min10transcripts": "Genes with 10 or more annotated splice variants"
+  "low_GC": "Genes with lowest 10% of GC content in genome",
+
+  "very_low_GC": "Genes with lowest 5% of GC content in genome",
+
+  "vv_low_GC": "Genes with lowest 1% of GC content in genome",
+
+  "high_GC": "Genes with lowest 10% of GC content in genome",
+
+  "high_transcripts": "Genes with 6 or more annotated splice variants (top 10% of genes)",
+
+  "very_high_transcripts": "Genes with 9 or more annotated splice variants (top 5% of genes)",
+
+  "vv_high_transcripts": "Genes with 15 or more annotated splice variants (top 1% of genes)",
+
+  "closest_genes": "Genes selected from random positions in the genome"
   }
 
+<!-- https://datatables.net/extensions/buttons/examples/initialisation/export.html -->
+
+$(document).ready(function () {
+
+  var first_search_box = $('#results_table tfoot th')[0];
+  $(first_search_box).html( '<input type="text" placeholder="Search gene set" />' );
+ 
+  $($('#results_table tfoot th')[1]).html( '<input type="text" placeholder="Search source" />' );
   
-  $(document).ready(function () {
+  $($('#results_table tfoot th')[2]).html( '<input type="number" id="min_query" placeholder="min query" />' );
+  $($('#results_table tfoot th')[10]).html( '<input type="text" id="max_query" placeholder="max query" />' );
+ 
+  $($('#results_table tfoot th')[7]).html( '<input type="text" placeholder="Search bias" />' );
+
+  
+  
+    // DataTable
+    var table = $("#results_table").DataTable({
+       "dom": 'Brt<"bottom"lip><"clear">',      
+       buttons: [
+            'copy', 'csv', 'excel', 'print'
+        ],
+        "aaSorting": [],
+        fixedFooter: true
+             
+    });
+ 
+    //var table_columns = $(table.columns())
+/**    var query_column_data = table
+        .columns( 2 )
+        .data();
+
+    console.log(query_column_data)
+    console.log("hello there")
+ 
+   $('#min_query, #max_query').keyup( function() {
+        
+      var min = document.getElementById("min_query").value
+      console.log(min)
+      
+      var max = 40;
+     // var query_count = parseFloat( query_column_data )
+      console.log(query_column_data)
+      var query_count = query_column_data
+
+      query_count.every(function() {
+
+        if ( ( isNaN( min ) && isNaN( max ) ) ||
+             ( isNaN( min ) && query_count <= max ) ||
+             ( min <= query_count   && isNaN( max ) ) ||
+             ( min <= query_count   && query_count <= max ) )
+        {
+            return true;
+        }
+        return false;
+        });
+    });
+    table.draw();
+ **/  
+    
+ 
+    // Apply the search
+    table.columns().every( function () {
+        var that = this;
+ 
+        $( 'input', this.footer() ).on( 'keyup change clear', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+
+
+
+
+ 
 
   $("#resultstabs ul li").click(function() {
   
@@ -57,10 +165,54 @@
   }
   });
 
+  $("#header").click(function(e){
+    console.log("header has been clicked");
+  });
 
   $("#biasexplanation").click(function(e){
   $(this).hide();
   });
   
+//https://code-maven.com/create-and-download-csv-with-javascript
+//https://www.youtube.com/watch?v=rqJm5SJgrj8
+/** This worked but after changing the results table to use the datatable functionality
+it was much better using the built in functions
+
+  $("#downloadButton").click(function(){
+
+    var csv = [];
+
+    $(".results tbody tr").each(function(rowIndex) {
+
+      $.each(this.cells, function(cellIndex, cell){
+
+        trimmed=cell.textContent.trim();
+        trimmed = trimmed.replace(/\r?\n|\r/g, "");
+        csv+=trimmed+',';
+      });
+      csv+= "\n";
+    });
+    console.log(csv);
+    var hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'results_table.csv';
+    hiddenElement.click();
+
+    $("#downloadButton").html("download again");
   });
+**/
+
+  $("#useEgSetButton").click(function(){
+	
+	console.log("test eg");
+	
+    $('#gene_list').val("ANAPC2\n9130023H24RIK\nDANCR\nMIR378B\nMEIOB\nTRP53RKA\nACRV1\nMIR153\nSPIN2F\nTSSK1\nOLFR804\nDDX26B\nOLFR1087\nESP24\nGINS1\nHYAL1\nCTDNEP1\nGNGT1\nOLFR914\nOLFR1166\nMIR709\nIGKV12-98\nKERA\nPCIF1\nSFTPA1\nBAK1\nOLFR1130\nVMN1R237\nOLFR622\nOLFR165\nRAB10\nCCDC14\nVMN1R233\nOLFR95\nMIR218-1\nTAGLN3\nMARVELD2\nMRPL18\nGM5635\nOLFR414\nMPPE1\nNAPSA\nGM26938\nTMEM194B\nMIR147\nSCGB1B20\nGM14151\nOLFR1513\nAEBP1\nWHAMM\nLYZL6\nATP1A4\nGPR31B\nOLFR813\nOLFR1307\nATG4C\nTLR5\nGM5449\nPAPOLB\nOLFR402\nORAI3\nDPEP1\nTCL1B2\nTNFRSF18\nTNFRSF4\nVWA1\nSKI\nGPR153\nKLHL21\nTNFRSF9\nERRFI1\nUBIAD1\nTNFRSF1B\nCASP9\nNBL1\nCAMK2N1\nIFNLR1\nRUNX3\nTMEM50A\nDHDDS\nPIGV\nEYA3\nMARCKSL1\nRNF19B\nGNL2\nNDUFS5\nMFSD2A\nNFYC\nRIMKLA\nPLK3\nTCTEX1D4\nPIK3R3\nLRRC41\nNSUN4\nZFYVE9\nPGM1\nPDE4B\nIL12RB2\nDNAJB4\nMCOLN2\nTGFBR3\nF3\nSLC30A7\nSARS\nCSF1\nSTRIP1\nCAPZA1\nAP4B1\nRNF115\nCERS2\nPIP5K1A\nTUFT1\nRORC\nUBAP2L\nSHC1\nSYT11\nLMNA\nISG20L2\nSH2D2A\nETV3\nCOPA\nF11R\nUAP1\nCD247\nBLZF1\nTNFSF18\nSOAT1\nRGL1\nCOLGALT2\nIVNS1ABP\nPTGS2\nPLA2G4A\nRGS1\nB3GALT2\nLGR6\nETNK2\nRAB29\nRAB7B\nMAPKAPK2\nIL10\nIL24\nLAMB3\nHSD11B1\nIRF6\nATF3\nHLX\nDEGS1\nH3F3A\nRHOU\nGPR137B\nEDARADD\nKMO\nADSS\nPAPD7\nBASP1\nTARS\nRANBP3L\nSLC1A3\nZSWIM6\nSV2C\nF2R\nF2RL1\nPAM\nTSLP\nCDO1\nOLFR1132\nCSF2\nIRF1\nIL13\nVDAC1\nSRA1\nPCDHGC3\nDPYSL3\nSPINK1\nADRB2\nPDGFRB\nSGCD\nHAVCR2\nNIPAL4\nTHG1L\nRARS\nLCP2\nSQSTM1\nGFPT2\nFLT4\nMGAT1\nIRF4\nSERPINB9\nRIPK1\nEDN1\nPPP1R11\nTRIM26\nTRIM39\nGNL1\nPPP1R10\nIER3\nTNF\nHSPA1L\nNEU1\nCFB\n");
+	
+  });
+	
+
+});
+
+
 </script>

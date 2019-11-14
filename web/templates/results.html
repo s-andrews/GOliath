@@ -1,6 +1,15 @@
 <!-- TMPL_IF NAME=EXISTS --><!-- TMPL_IF NAME=COMPLETE --><!-- TMPL_INCLUDE NAME="header.html" -->
 
-<h2>Results for job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --></h2>
+<script src="jquery-3.4.1.min.js"></script>
+<script src="jquery.dataTables.min.js"></script>
+<script src="dataTables.buttons.min.js"></script>
+<script src="buttons.flash.min.js"></script>
+<script src="buttons.html5.min.js"></script>
+<script src="buttons.print.min.js"></script>
+<script src="vfs_fonts.js"></script>
+<script src="jszip.min.js"></script>
+
+<h2 id="job_id">Results for job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --></h2>
 
 <div id="resultstabs">
 
@@ -11,21 +20,30 @@
   </ul>
   
 </div>
+
 <div class="resultdiv" id="tablediv">
-<h3>Hit table</h3>
+
+<h3 id="hit_table_header">Hit table</h3>
+
+<!-- 
+<input type="button" class="button" id="downloadButton" value="Download Table">
+-->
 
 <!-- TMPL_IF NAME=HIT_TABLE -->
-<table class="results">
+<table class="results" id="results_table" style="width:100%">
+  <thead>
   <tr>
     <th>Gene Set</th>
     <th>Source</th>
     <th>Query count</th>
     <th>Background count</th>
-    <th>Category count</th>
+    <th>Category size</th>
     <th>FDR</th>
     <th>Enrichment</th>
     <th>Potential bias</th>
   </tr>
+  </thead>
+  <tbody>
   <!-- TMPL_LOOP NAME=HIT_TABLE -->
   <tr>
     <td><!-- TMPL_VAR NAME=GO_NAME ESCAPE=HTML --></td>
@@ -40,10 +58,31 @@
       <span class="bias <!-- TMPL_VAR NAME=CLASS ESCAPE=HTML -->"><!-- TMPL_VAR NAME=BIAS ESCAPE=HTML --></span>
       <!-- /TMPL_LOOP -->
     </td>
-  </tr>
+  </tr> 
   <!-- /TMPL_LOOP -->
-
-
+  </tbody>
+  <tfoot>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </tfoot> 
 </table>
 <!-- TMPL_ELSE -->
 <p class=center>No significant category hits</p>
@@ -81,13 +120,62 @@
 <!-- The content for the biases -->
 <div class="resultdiv" id="biasesdiv">
 <h3>Biases</h3>
+<!-- TMPL_IF NAME=HIT_TABLE -->
+<table class="biasSummary" id="biasSummaryTable">
+  <tr>
+    <th>Bias Source</th>
+    <th>Number flagged</th>
+    <th>Total in bias category</th>
+  </tr>
+  <!-- TMPL_LOOP NAME=BIAS_SUMMARY -->
+  <tr>
+    <td><!-- TMPL_VAR NAME=BIAS_SOURCE ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=TOTAL_FLAGGED ESCAPE=HTML --></td>
+    <td><!-- TMPL_VAR NAME=TOTAL_IN_CATEGORY ESCAPE=HTML --></td>
+  </tr>
+  <!-- /TMPL_LOOP -->
 
+
+</table>
+<!-- TMPL_ELSE -->
+<p class=center>No significant category hits</p>
+
+<!-- /TMPL_IF -->
+
+
+
+<p class=left>
+  These documents describe how the lists of biased genes were produced.
+  <br>
+  <br>
+  <a href="http://htmlpreview.github.io/?https://github.com/laurabiggins/GOcategoryStats/blob/master/doc/1.length_biased.html" target="_blank">Length biased genes</a>
+  <br>
+  <br>
+  <a href="https://raw.githack.com/laurabiggins/GOcategoryStats/master/doc/2.high_transcript_biased.html" target="_blank">Genes with high numbers of transcripts</a>
+  <br>
+  <br>
+  <a href="https://raw.githack.com/laurabiggins/GOcategoryStats/master/doc/3.GC_content_biased.html" target="_blank">GC content biased</a>
+  <br>
+  <br>
+  <a href="http://htmlpreview.github.io/?https://github.com/laurabiggins/GOcategoryStats/blob/master/doc/4.chromosome_biased.html" target="_blank">Chromosome biased</a>
+  <br>
+  <br>
+  <a href="http://htmlpreview.github.io/?https://github.com/laurabiggins/GOcategoryStats/blob/master/doc/5.closest_gene.html" target="_blank">Closest gene to random positions</a>
+  <br> 
+  <br>
+  <a href="http://htmlpreview.github.io/?https://github.com/laurabiggins/GOcategoryStats/blob/master/doc/6.1_public_data_tidy.html" target="_blank">Public data tidy</a>
+  <br>
+  <br>  
+  <a href="http://htmlpreview.github.io/?https://github.com/laurabiggins/GOcategoryStats/blob/master/doc/7.GO_category_summary.html" target="_blank">GO category summary</a>
+  <br>
+  <br> 
+</p>
 </div>
 
 <!-- The biasexplanation div which will pop up if you click on a bias -->
 
 <div id="biasexplanation">
-  Stuff will go here
+
 </div>
 
 <!-- TMPL_ELSE --><!-- TMPL_INCLUDE NAME="refresh_header.html" -->

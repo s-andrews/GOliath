@@ -6,6 +6,7 @@ use FindBin qw($RealBin);
 use File::Glob;
 use HTML::Template;
 use MIME::Base64;
+use Cwd;
 #use CGI::Carp qw(fatalsToBrowser);
 
 #######################################################################
@@ -99,7 +100,8 @@ sub process_submission {
 
     # We need to collect the information from the form and check that it works.
     my $species = $q -> param("species");
-    my $list_type = $q -> param("list_type");
+    #my $list_type = $q -> param("list_type"); # we don't have the R code to process an ordered list at the moment
+    my $list_type = "Unordered";
     my $gene_list_text = $q -> param("gene_list");
     my $background_list_text = $q -> param("background_list");
 
@@ -121,7 +123,7 @@ sub process_submission {
     }
 
     unless ($list_type eq 'Ordered' or $list_type eq 'Unordered') {
-	print_bug("Uknown list type '$list_type'");
+	print_bug("Unknown list type '$list_type'");
     }
 
     my @gene_list_genes = get_genes($gene_list_text,$valid_species);
@@ -334,9 +336,28 @@ sub show_job {
 	    };
 
 	}
-
+  
+  
 	$template -> param(HIT_TABLE => \@hit_table);
 
+	# Read the hit table
+	my @bias_summary;
+	open(IN_STATS,"summary_stats.txt") or print_bug("Couldn't open summary stats for $job_id: $!");
+	$_ = <IN_STATS>; # Remove header
+
+	while (<IN_STATS>) {
+    chomp;
+   # my ($row_number,$bias_source,$n,$number_flagged) = split(/\t/);
+    my ($row_number,$bias_source,$n,$number_flagged) = split(' ');
+
+    push @bias_summary, {
+      BIAS_SOURCE => $bias_source,
+      TOTAL_IN_CATEGORY => $n,
+      TOTAL_FLAGGED => $number_flagged,
+    };
+	}
+
+	$template -> param(BIAS_SUMMARY => \@bias_summary);
 
 
 	# Add the Properties images
@@ -346,8 +367,6 @@ sub show_job {
 	    GC_GRAPH => encode_image("GC.png"),
 	);
     }
-
-    
 
     print $template -> output();
 

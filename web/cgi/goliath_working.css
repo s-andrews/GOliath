@@ -1,0 +1,311 @@
+/** General layout stuff **/
+
+body {
+  font-family: 'Pablo Impallari',sans-serif;
+  color: #000000;
+  background-color: #FFFFFF;
+  padding: 1em;
+  padding: 0;
+}
+
+h1 {
+  color: #FFFFFF;
+  background-color: #4EA1AA;
+}
+h2,h3,h4 {
+  text-align: center;
+  font-size: 200%;
+  font-weight: normal;
+  margin: 0;
+  padding: 0.5em;
+}
+
+h2 {
+  color: #000000;
+}
+
+a {
+  color: #00506E;
+ }
+
+p {
+  text-align: justify;
+
+  line-height: 120%;
+}
+
+textarea {
+  padding: 0;
+  margin: 0;
+  width: 97%;
+  overflow: auto;
+}
+
+select {
+    font-size: 120%;
+    width: 100%;
+}
+
+input {
+    font-size: 150%;
+    padding: 0.5em 2em;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+button {
+  margin-top: 10px;
+  padding-top: 50px;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size: 50%;
+}
+
+#useEgSetButton {
+  font-size: 80%;
+  margin-left: auto;	
+  margin-right: 540px;
+}
+
+#downloadButton {
+  margin-top: 0.01em;
+  margin-bottom: 0.1em;
+  margin-left: 10%;  
+  margin-right: 70%;
+  font-size: 80%;
+  text-align: center;
+}	
+
+/** The tabs in the results output **/
+
+#resultstabs {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+#resultstabs ul  {
+    display: table;
+    width: 95%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border:0;
+    margin-left: 2.5%;
+}
+
+#resultstabs ul  li {
+    display: table-cell;
+    text-align: center;
+    color:white;
+    background: darkgrey;
+    margin: 2px;
+    padding: 1em;
+}
+
+#resultstabs ul  li.selected {
+    background: #C00;
+}
+
+#resultstabs ul  li:hover {
+    background: #C00;
+    cursor: pointer;
+}
+
+.resultdiv {
+    width: 95%;
+    margin-left: 2.5%;
+    margin-top: 0;
+    padding-top: 0;
+    background: #EEE;
+}
+
+/** The results table **/
+
+table.results {
+    width: 80%;
+}
+
+th {
+  text-align: center;
+  background-color: #333333;
+  color: white;
+  padding: 0.6em;
+  font-size: 120%;
+  font-weight: normal;
+}
+
+td {
+  text-align: center;
+  background-color: #DDDDDD;
+  color: #444444;
+  padding: 0.6em;
+  font-size: 100%;
+}
+
+table.results th {
+    font-size: 110%;
+}
+
+table.results td {
+    font-size:90%;
+    background-color: white;
+    padding: 0.2em;
+}
+
+td.center {
+  text-align: center;
+}
+
+
+td input[type="text"]  {
+  width: 95%;
+}
+
+#biasSummaryTable td {
+  background-color: orange;
+  padding: 0.2em;
+}
+
+.bias {
+    display: inline-block;
+    background-color: grey;
+    color:white;
+    padding: 0.2em;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+    border-radius: 1em;
+    margin: 0.1em;
+    cursor: pointer;
+
+}
+
+.public_data {
+   background-color: #1f78b4;
+}
+.very_long {
+   background-color: #33a02c;
+}
+.long {
+  background-color: #33a02c;
+}
+.very_short {
+   background-color: #fb9199;
+}
+.short {
+  background-color: #fb9199;
+}
+.low_GC {
+   background-color: #ff7f00;
+}
+.very_low_GC {
+  background-color: #ff7f00;
+}
+.vv_low_GC {
+  background-color: #ff7f00;
+}
+.high_GC {
+   background-color: #fdbf6f;
+}
+.high_transcripts {
+   background-color: #6a3d9a;
+}
+.very_high_transcripts {
+  background-color: #6a3d9a;
+}
+.vv_high_transcripts {
+  background-color: #6a3d9a;
+}
+.chr {
+   background-color: #b15928;
+}
+.closest_genes {
+  background-color: #f2c50f;
+}
+
+#biasexplanation {
+    position: absolute;
+    display: none;
+    background: white;
+    padding: 0.5em;
+    border-radius: 1em;
+    border: 2px solid black;
+}
+
+
+
+
+
+/** The footer **/
+
+#header {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  padding-top: 3px;
+  background-color: #FFFFFF;
+  background-position: right top;
+  text-align:left;
+  color: black;
+  font-size:80%;
+}
+
+#header a {
+    text-decoration: none;
+    color: black;
+    padding-left: 2em;
+}
+
+
+
+
+#footer {
+  margin-top: 30px;
+  border-top: 1px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  background-color: #FFFFFF;
+  clear: both;
+}
+
+#footer p {
+  color: #444444;
+  font-size: 85%;
+  border: 0;
+  margin: 0;
+  padding: 0.2em;
+  padding-left: 2em;
+}
+
+#footer a {
+  color: #C80000;
+}
+
+/** The properties tab **/
+#propertydiv {
+    display: none;
+}
+
+
+
+/** The Biases tab **/
+#biasesdiv {
+    display: none;
+    padding-left: 30px
+}
+
+
+
