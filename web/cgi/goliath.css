@@ -183,7 +183,8 @@ td {
 }  
 #job_id{
   float: right;
-  font-size: 70%;
+  font-size: 80%;
+  padding-right: 2em;
 }  
 
 table.results th {
