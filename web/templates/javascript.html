@@ -1,24 +1,6 @@
 <script>
 
-$.fn.dataTable.ext.search.push(
-    function( settings, data, dataIndex ) {
-        var min = parseInt( $('#min_query').val(), 10 );
-        var max = parseInt( $('#max_query').val(), 10 );
-        var query_count = parseFloat( data[2] )
- 
-        if ( ( isNaN( min ) && isNaN( max ) ) ||
-             ( isNaN( min ) && query_count <= max ) ||
-             ( min <= query_count   && isNaN( max ) ) ||
-             ( min <= query_count   && age <= max ) )
-        {
-            return true;
-        }
-        return false;
-    }
-);
-
-
-  var popovers = {
+ var popovers = {
   "chr": "Genes which were found on a specific chromosome",
   
   "public_data": "Gene categories which turned up with unusual frequency when analysing biological replicates in publicly deposited RNA-Seq data",
@@ -50,18 +32,121 @@ $.fn.dataTable.ext.search.push(
 
 <!-- https://datatables.net/extensions/buttons/examples/initialisation/export.html -->
 
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        var min = parseInt( $('#min_query').val(), 10 );
+        var max = parseInt( $('#max_query').val(), 10 );
+        var query_count = parseFloat( data[2] ) || 0; // use data for the age column
+         
+        if ( ( isNaN( min ) && isNaN( max ) ) ||
+             ( isNaN( min ) && query_count <= max ) ||
+             ( min <= query_count   && isNaN( max ) ) ||
+             ( min <= query_count   && query_count <= max ) )
+        {
+        
+            return true;
+        }
+        return false;
+    }
+);
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        var min = parseInt( $('#min_bg').val(), 10 );
+        var max = parseInt( $('#max_bg').val(), 10 );
+        var query_count = parseFloat( data[3] ) || 0; // use data for the age column
+         
+        if ( ( isNaN( min ) && isNaN( max ) ) ||
+             ( isNaN( min ) && query_count <= max ) ||
+             ( min <= query_count   && isNaN( max ) ) ||
+             ( min <= query_count   && query_count <= max ) )
+        {
+        
+            return true;
+        }
+        return false;
+    }
+);
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        var min = parseInt( $('#min_category_size').val(), 10 );
+        var max = parseInt( $('#max_category_size').val(), 10 );
+        var query_count = parseFloat( data[4] ) || 0; // use data for the age column
+         
+        if ( ( isNaN( min ) && isNaN( max ) ) ||
+             ( isNaN( min ) && query_count <= max ) ||
+             ( min <= query_count   && isNaN( max ) ) ||
+             ( min <= query_count   && query_count <= max ) )
+        {
+        
+            return true;
+        }
+        return false;
+    }
+);
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        var min = parseFloat( $('#min_FDR').val(), 10 );
+        var max = parseFloat( $('#max_FDR').val(), 10 );
+        var query_count = parseFloat( data[5] ) || 0; // use data for the age column
+         
+        if ( ( isNaN( min ) && isNaN( max ) ) ||
+             ( isNaN( min ) && query_count <= max ) ||
+             ( min <= query_count   && isNaN( max ) ) ||
+             ( min <= query_count   && query_count <= max ) )
+        {
+        
+            return true;
+        }
+        return false;
+    }
+);
+
+$.fn.dataTable.ext.search.push(
+    function( settings, data, dataIndex ) {
+        var min = parseFloat( $('#min_enrichment').val(), 10 );
+        var max = parseFloat( $('#max_enrichment').val(), 10 );
+        var query_count = parseFloat( data[6] ) || 0; // use data for the age column
+         
+        if ( ( isNaN( min ) && isNaN( max ) ) ||
+             ( isNaN( min ) && query_count <= max ) ||
+             ( min <= query_count   && isNaN( max ) ) ||
+             ( min <= query_count   && query_count <= max ) )
+        {
+        
+            return true;
+        }
+        return false;
+    }
+);
+
+
 $(document).ready(function () {
 
   var first_search_box = $('#results_table tfoot th')[0];
-  $(first_search_box).html( '<input type="text" placeholder="Search gene set" />' );
+  $(first_search_box).html( '<input type="text" id="gene_set" placeholder="Search gene set" />' );
  
-  $($('#results_table tfoot th')[1]).html( '<input type="text" placeholder="Search source" />' );
+  $($('#results_table tfoot th')[1]).html( '<input type="text" id="source" placeholder="Search source" />' );
   
-  $($('#results_table tfoot th')[2]).html( '<input type="number" id="min_query" placeholder="min query" />' );
+  $($('#results_table tfoot th')[2]).html( '<input type="text" id="min_query" placeholder="min query" />' );
   $($('#results_table tfoot th')[10]).html( '<input type="text" id="max_query" placeholder="max query" />' );
- 
-  $($('#results_table tfoot th')[7]).html( '<input type="text" placeholder="Search bias" />' );
 
+  $($('#results_table tfoot th')[3]).html( '<input type="text" id="min_bg" placeholder="min bg" />' );
+  $($('#results_table tfoot th')[11]).html( '<input type="text" id="max_bg" placeholder="max bg" />' );
+
+  $($('#results_table tfoot th')[4]).html( '<input type="text" id="min_category_size" placeholder="min size" />' );
+  $($('#results_table tfoot th')[12]).html( '<input type="text" id="max_category_size" placeholder="max size" />' );
+  
+  $($('#results_table tfoot th')[5]).html( '<input type="text" id="min_FDR=" placeholder="min FDR" />' );
+  $($('#results_table tfoot th')[13]).html( '<input type="text" id="max_FDR" placeholder="max FDR" />' );
+
+  $($('#results_table tfoot th')[6]).html( '<input type="text" id="min_enrichment" placeholder="min enrichment" />' );
+  $($('#results_table tfoot th')[14]).html( '<input type="text" id="max_enrichment" placeholder="max enrichment" />' );
+ 
+  $($('#results_table tfoot th')[7]).html( '<input type="text" id="bias" placeholder="Search bias" />' );
   
   
     // DataTable
@@ -74,61 +159,12 @@ $(document).ready(function () {
         fixedFooter: true
              
     });
- 
-    
-//    var query_column = table.columns( 2 );
-    
- //   console.log("hello there")
-/** 
-   $('#min_query, #max_query').keyup( function() {
-    $('#min_query').keyup( function() {
-**/  
-
-/**    $('#min_query').on( 'keyup change clear', function () {
-     // var this_min_query = '#min_query';
-      var that = query_column_data;
-    
-      console.log(that)
-    
-      var min = document.getElementById("min_query").value;
-      console.log(min);
-      
-      
-         //if ( that.search() !== min ) {
-         if ( that >= min ) {
-         console.log(that)
-                that
-                    .search( min )
-                    .draw();
-            }
-      
-    });  
-/**      var max = 40;
-     // var query_count = parseFloat( query_column_data )
-      console.log(query_column_data)
-      var query_count = query_column_data
-
-      query_count.every(function() {
-
-        if ( ( isNaN( min ) && isNaN( max ) ) ||
-             ( isNaN( min ) && query_count <= max ) ||
-             ( min <= query_count   && isNaN( max ) ) ||
-             ( min <= query_count   && query_count <= max ) )
-        {
-            return true;
-        }
-        return false;
-        });
-    });
-    table.draw();
- **/  
-    
- 
+     
     // Apply the search - this works
     table.columns().every( function () {
         var that = this;
  
-        $( 'input', this.footer() ).on( 'keyup change clear', function () {
+        $( '#gene_set', this.footer() ).on( 'keyup change clear', function () {
             if ( that.search() !== this.value ) {
                 that
                     .search( this.value )
@@ -137,10 +173,50 @@ $(document).ready(function () {
         } );
     } );
 
-
-
-
+    table.columns().every( function () {
+        var that = this;
  
+        $( '#source', this.footer() ).on( 'keyup change clear', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+
+    table.columns().every( function () {
+        var that = this;
+ 
+        $( '#bias', this.footer() ).on( 'keyup change clear', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+
+     $('#min_query, #max_query').on( 'keyup change clear', function (){
+        table.draw();
+    } );
+
+    $('#min_bg, #max_bg').on( 'keyup change clear', function (){
+      table.draw();
+    } );
+    
+    $('#min_category_size, #max_category_size').on( 'keyup change clear', function (){
+    table.draw();
+    } );
+
+    $('#min_FDR, #max_FDR').on( 'keyup change clear', function (){
+    table.draw();
+    } );
+ 
+    $('#min_enrichment, #max_enrichment').on( 'keyup change clear', function (){
+    table.draw();
+    } );
+
 
   $("#resultstabs ul li").click(function() {
   
