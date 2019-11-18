@@ -2,6 +2,9 @@ suppressMessages(library(data.table))
 suppressMessages(library(tidyverse))
 suppressMessages(library(here))
 library(runGOA)
+library("magrittr")
+library("dplyr")
+library("ggplot2")
 
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
@@ -261,13 +264,28 @@ print(head(all_gene_info))
 query_GC <- get_GC(query_filt, gene_info)
 bg_GC    <- get_GC(bg_genes, gene_info)
 
-print(head(query_GC))
+gc_data <- tibble(GC = query_GC, type = "query") %>%
+  bind_rows(tibble(GC = bg_GC, type = "background"))
 
-my_plotting_data <- list(query = query_GC, background = bg_GC)
 
-png("GC.png")
-density_plot(my_plotting_data, main = "GC content", xlab = "GC content")
+p <- ggplot(gc_data, aes(x = GC, fill = type, color = type)) +
+  geom_density(alpha = 0.5, size = 1.5) +
+  ggtitle("\nGC content of genes\n") +
+  scale_color_manual(values = c("black", "red3")) +
+  scale_fill_manual(values = c("black", "red3")) +
+  theme(
+    legend.title = element_blank(), 
+    legend.text  = element_text(size = 16),
+    axis.title   = element_text(size = 20),
+    axis.text    = element_text(size = 14),
+    title        = element_text(size = 22),
+    legend.spacing.x = unit(0.2, 'cm')
+  )
+
+png("GC.png", width = 600, height = 400)
+p
 dev.off()
+
 
 #=============
 # length plot
@@ -275,10 +293,26 @@ dev.off()
 query_lengths <- get_lengths(query_filt, gene_info)
 bg_lengths    <- get_lengths(bg_genes, gene_info)
 
-my_plotting_data <- list(query = query_lengths, background = bg_lengths)
+length_data <- tibble(gene_length = query_lengths, type = "query") %>%
+  bind_rows(tibble(gene_length = bg_lengths, type = "background"))
 
-png("gene_lengths.png")
-density_plot(my_plotting_data, log = TRUE, main = "gene lengths")
+p <- ggplot(length_data, aes(x = log2(gene_length), fill = type, color = type)) +
+  geom_density(alpha = 0.5, size = 1.5) +
+  ggtitle("\nGene lengths\n") +
+  scale_color_manual(values = c("black", "red3")) +
+  scale_fill_manual(values = c("black", "red3")) +
+  labs(x = "log2 gene length") +
+  theme(
+    legend.title = element_blank(), 
+    legend.text  = element_text(size = 16),
+    axis.title   = element_text(size = 20),
+    axis.text    = element_text(size = 14),
+    title        = element_text(size = 22),
+    legend.spacing.x = unit(0.2, 'cm')
+  )
+
+png("gene_lengths.png", width = 600, height = 400)
+p
 dev.off()
 
 
@@ -291,8 +325,31 @@ bg_chr    <- get_chromosomes(bg_genes, gene_info)
 chr_list  <- list(query = query_chr, background = bg_chr)
 chr_proportions <- get_chr_percentage(chr_list)
 
-png("chr_plot.png")
-bar_plot(chr_proportions, main = "chr")
+chr <- rownames(chr_proportions)
+
+tidy_chr <- tibble::as_tibble(chr_proportions) %>%
+  mutate(chr = factor(chr, levels = chr)) %>%
+  tidyr::gather(`query`, `background`, key = "type", value = "proportion")
+
+p <- ggplot(tidy_chr, aes(x = chr, y = proportion, fill = type, color = type)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.7) +
+  ggtitle("\nChromosomal locations\n") +
+  coord_flip() +
+  labs(y = "% of genes on chromosome") +
+  scale_color_manual(values = c("black", "red3")) +
+  scale_fill_manual(values = c("black", "red3")) +
+  theme(
+    legend.title = element_blank(),
+    legend.text  = element_text(size = 16),
+    axis.title   = element_text(size = 20),
+    axis.text    = element_text(size = 14),
+    axis.title.y = element_text(angle = 0,  hjust = 0),
+    title        = element_text(size = 22),
+    legend.spacing.x = unit(0.2, 'cm'))
+
+
+png("chr_plot.png", width = 600, height = 700)
+p
 dev.off()
 
 write("", file = "finished.flag")

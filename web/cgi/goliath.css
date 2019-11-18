@@ -207,9 +207,13 @@ td.center {
 }
 */
 #biasSummaryTable td {
-  background-color: orange;
+  background-color: #c7c7c7;
   padding: 0.2em;
 }
+
+#documentation_links {
+  padding:2em;
+}  
 
 .bias {
     display: inline-block;
@@ -382,7 +386,7 @@ table.dataTable.no-footer{border-bottom:1px solid #111} */
   padding-top:0.5em;
   margin-top:1em;
   font-size:80%;
-  background:orange;
+  /*background:orange;*/
 }  
   
 #results_table_length select {

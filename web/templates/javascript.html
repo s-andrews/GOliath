@@ -75,20 +75,35 @@ $(document).ready(function () {
              
     });
  
-    //var table_columns = $(table.columns())
-/**    var query_column_data = table
-        .columns( 2 )
-        .data();
-
-    console.log(query_column_data)
-    console.log("hello there")
- 
+    
+//    var query_column = table.columns( 2 );
+    
+ //   console.log("hello there")
+/** 
    $('#min_query, #max_query').keyup( function() {
-        
-      var min = document.getElementById("min_query").value
-      console.log(min)
+    $('#min_query').keyup( function() {
+**/  
+
+/**    $('#min_query').on( 'keyup change clear', function () {
+     // var this_min_query = '#min_query';
+      var that = query_column_data;
+    
+      console.log(that)
+    
+      var min = document.getElementById("min_query").value;
+      console.log(min);
       
-      var max = 40;
+      
+         //if ( that.search() !== min ) {
+         if ( that >= min ) {
+         console.log(that)
+                that
+                    .search( min )
+                    .draw();
+            }
+      
+    });  
+/**      var max = 40;
      // var query_count = parseFloat( query_column_data )
       console.log(query_column_data)
       var query_count = query_column_data
@@ -109,7 +124,7 @@ $(document).ready(function () {
  **/  
     
  
-    // Apply the search
+    // Apply the search - this works
     table.columns().every( function () {
         var that = this;
  
