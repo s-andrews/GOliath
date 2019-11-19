@@ -1,10 +1,10 @@
 suppressMessages(library(data.table))
 suppressMessages(library(tidyverse))
 suppressMessages(library(here))
-library(runGOA)
-library("magrittr")
-library("dplyr")
-library("ggplot2")
+suppressMessages(library(runGOA))
+suppressMessages(library("magrittr"))
+suppressMessages(library("dplyr"))
+suppressMessages(library("ggplot2"))
 
 # these functions will be packaged up so that the package can just be loaded,
 # but for now we'll just source the files
@@ -22,9 +22,30 @@ setwd(folder.path)
 
 # import the config file
 config.info <- read.delim("config.txt", header = FALSE, row.names = 1)
+tibble::as_tibble(t(config.info)) -> tidy_config
 
-type <- config.info["type",]
-species <- config.info["species",]
+type    <- pull(tidy_config, type)
+species <- pull(tidy_config, species)
+min_category_size <- pull(tidy_config, min_category_size)
+max_category_size <- pull(tidy_config, max_category_size)
+
+if(min_category_size == ""){
+  min_category_size = 10
+  print("Setting minimum category size to 10 as no information found from input form")
+}
+
+if(max_category_size == ""){
+  max_category_size = 500
+  print("Setting maximum category size to 500 as no information found from input form")
+}
+
+min_category_size <- as.numeric(min_category_size)
+max_category_size <- as.numeric(max_category_size)
+ 
+#type <- config.info["type",]
+#species <- config.info["species",]
+#min_category_size <- config.info["min_category_size	",]
+#min_category_size <- config.info["min_category_size	",]
 
 if (is.na(type)) {
     print("gene list type not detected")
@@ -47,21 +68,9 @@ print(paste0(length(bg_genes), " background genes imported"))
 
 # clean_text removes spaces, characters and converts to upper case
 query_genes <- runGOA::clean_text(query_genes)
-bg_genes <- runGOA::clean_text(bg_genes)
+bg_genes    <- runGOA::clean_text(bg_genes)
 print(head(query_genes))
 print(head(bg_genes))
-
-# file that contains the functional categories and genes within them
-#species <- as.character(species)
-#gmt.file.name <- paste0(species, "/", (list.files(species))[1])
-#print("GO file")
-#print(gmt.file.name)
-#gmt.file <- scan(gmt.file.name, sep = "\n", what = "", quiet = TRUE)
-#print(paste0(length(gmt.file), " categories imported"))
-#
-## parse the gmt file
-#go.categories <- process_GMT(gmt.file)
-
 
 if (grepl(pattern = "Homo_Sapiens", species)) {
     go.categories <- human_categories
@@ -70,8 +79,6 @@ if (grepl(pattern = "Homo_Sapiens", species)) {
 } else {
     print("Couldn't find GO category file")
 }
-
-
 
 #===========================
 # import the gene info file
@@ -103,7 +110,6 @@ ifelse((length(bg_genes) == 0), bg_genes <- unique(unlist(go.categories)), bg_ge
 #====================
 query_genes <- remove_duplicates(query_genes)
 
-
 # check whether all the query genes are in the background genes
 query_filt <- query_genes
 if (sum(!query_genes %in% bg_genes > 0)) {
@@ -113,13 +119,11 @@ if (sum(!query_genes %in% bg_genes > 0)) {
     query_filt <- query_genes[query_genes %in% bg_genes]
 }	
 
-#=============================================
-# filter options that aren't implemented here
-#=============================================
-#min.genes.in.category <- 3
-#max.genes.in.category <- 5000
 
-go_results <- overrep_test(go.categories, query_filt, bg_genes)
+#===========================
+# The GO analysis
+#=============================
+go_results <- runGOA::overrep_test(go.categories, query_filt, bg_genes, min_genes_in_category = min_category_size, max_genes_in_category = max_category_size)
 
 if(is.null(go_results)){
 	warning("no significant results found")
@@ -213,6 +217,7 @@ if(is.null(go_results)){
   print("And this category size info")
   as.data.frame(size_of_bias_categories)
 }
+
 
 #=================
 # screening plots
@@ -315,7 +320,6 @@ png("gene_lengths.png", width = 600, height = 400)
 p
 dev.off()
 
-
 #=============
 # chr plot
 #=============
@@ -323,7 +327,15 @@ query_chr <- get_chromosomes(query_filt, gene_info)
 bg_chr    <- get_chromosomes(bg_genes, gene_info)
 
 chr_list  <- list(query = query_chr, background = bg_chr)
+
+zz <- file("all.Rout", open="wt")
+sink(zz, type="message")
+
 chr_proportions <- get_chr_percentage(chr_list)
+
+## reset message sink and close the file connection
+sink(type="message")
+close(zz)
 
 chr <- rownames(chr_proportions)
 
@@ -353,3 +365,5 @@ p
 dev.off()
 
 write("", file = "finished.flag")
+
+#warning("Warning message 6")

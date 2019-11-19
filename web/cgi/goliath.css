@@ -183,13 +183,13 @@ td {
 }  
 #job_id{
   float: right;
-  font-size: 80%;
-  padding-right: 2em;
+  font-size: 90%;
+  padding-right: 3em;
 }  
 
-table.results th {
-    /**font-size: 90%;
-     font-size: 110%; */
+/**table.results th {
+    font-size: 90%;
+     font-size: 110%; 
 }
 
 /**table.results td {

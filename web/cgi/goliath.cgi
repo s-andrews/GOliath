@@ -104,9 +104,12 @@ sub process_submission {
     my $list_type = "Unordered";
     my $gene_list_text = $q -> param("gene_list");
     my $background_list_text = $q -> param("background_list");
+    my $min_category_size = $q -> param("minsize");
+    my $max_category_size = $q -> param("maxsize");
+    my $query_name = $q -> param("name");
 
     unless ($species) {
-	print_bug("No species when submitting form");
+      print_bug("No species when submitting form");
     }
     my @species = list_species();
     my $valid_species;
@@ -137,7 +140,31 @@ sub process_submission {
 	@background_list_genes = ();
     }
 
-    my $job_id = generate_job_id();
+# $job_id = generate_job_id();
+
+#  chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Failed to move to job folder $job_id: $!");
+#  open (OUT1,'>','job_info.txt') or print_bug("Failed to write to job info file: $!"); 
+#  print OUT1 "query name\t$query_name\n";
+#  my $res = ($query_name eq "");
+#  print OUT1 "$res\n";
+#  my $length_query = length($query_name);
+#  print OUT1 "$length_query\n";  
+#  close OUT1;
+#  # my $job_id = "";
+#
+  if(length($query_name) < 1){
+    $job_id = generate_job_id();
+  }
+  else{
+  # if there's already a job of that name, we should tell them that it needs to be named differently,
+  # right now it will just make a random job name rather than overwriting the job folder.
+    if (-e "$config->{JOB_FOLDER}/$query_name"){
+      $job_id = generate_job_id();
+    }
+    else{
+      $job_id = generate_named_job_id($query_name);
+    }  
+  }
 
     # Making the job id should have created a folder in the jobs
     # folder for us.
@@ -148,6 +175,8 @@ sub process_submission {
     open (OUT,'>','config.txt') or print_bug("Failed to write to config.txt: $!");
     print OUT "type\t$list_type\n";
     print OUT "species\t$RealBin/../../godata/$valid_species\n";
+    print OUT "min_category_size\t$min_category_size\n";
+    print OUT "max_category_size\t$max_category_size\n";
     close OUT or print_bug("Failed to write to config.txt: $!");
 
     open (OUT,'>','gene_list.txt') or print_bug("Failed to write to gene_list.txt: $!");
@@ -169,29 +198,57 @@ sub process_submission {
     # We don't want to wait for the child so we'll detach from it
     $SIG{CHLD} = 'IGNORE';
 
-    my $pid = fork();
+   # my $pid = fork();
+    my $pid = fork;
 
+    #defined (my $pid = fork) or die "Cannot fork: $!\n"
+    
     if ($pid) {
+    
+    #close STDOUT;
+    #close STDERR;
 	# We're the child and we need to start the analysis
 
 	# First we'll write out pid into a file in the run
 	# folder so that the results tracker can tell if we've
 	# died.
-
 	open (PID,'>','pid.txt') or die "Failed to write to pid file : $!";
 
 	print PID $pid;
-	close PID or die "Failed to write to pid file: $!";
+ #	close PID or die "Failed to write to pid file: $!";
 
-#	exec("Rscript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt");
+ # The following code was taken from
+ #  http://perl.apache.org/docs/1.0/guide/performance.html#Avoiding_Zombie_Processes
+#  waitpid($pid,0);
+#   
+#   } else {
+#    
+#    defined (my $grandkid = fork) or die "Kid cannot fork: $!\n";
+#    print PID $grandkid;
+#    
+#    if ($grandkid) {
+#      CORE::exit(0);     
+#    } else {
+#      print PID $grandkid;
+#      system("ls > log.txt 2>errors.txt &") == 0 or do {
+#        open(BROKE,">","broke.txt");
+#      };     
+#      system("Rscript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt");
+#      print PID $grandkid;       
+#      CORE::exit(0);
+#      }
 
-	system("Rscript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt &");
-	exit(0);
+# The commented out code above does run ok, but it still produces the broke file and a 
+# warning message in the errors.txt file, so it doesn't do what we want it to do. 
+# Also, the GOing gif doesn't show so I'm going back to the previous code for now 
+  
+  system("Rscript $RealBin/../../analysis/GO_analysis.r \"$config->{JOB_FOLDER}/$job_id\" > log.txt 2>errors.txt &");
+  #exit(0);
+  }
+  
+  close PID or die "Failed to write to pid file: $!";
 
-    }
-
-
-    print $q->redirect("goliath.cgi?job_id=$job_id");
+  print $q->redirect("goliath.cgi?job_id=$job_id");
 
 }
 
@@ -222,8 +279,27 @@ sub generate_job_id {
 
     }
 
+}
+
+sub generate_named_job_id {
+
+  my ($job_name) = @_;
+
+	if (-e "$config->{JOB_FOLDER}/$job_name") {
+	    warn "Job $job_name already exists";
+	    next;
+	}
+
+	unless (mkdir("$config->{JOB_FOLDER}/$job_name")) {
+	    # The chances of generating the same code at the same time
+	    # are pretty small so we'll assume this is a bug
+	    print_bug("Failed to make job folder for $job_name: $!");
+	}
+
+	return $job_name;
 
 }
+
 
 
 
@@ -267,7 +343,7 @@ sub show_job {
 	# We can't check the pid until we fix how the forking is working
 	# We'll settle for seeing if the error file is empty instead.
 
-	if (-e "$config->{JOB_FOLDER}/$job_id/errors.txt") {
+	if (-e "$config->{JOB_FOLDER}/$job_id/broke.txt") {
 	    if ((stat "$config->{JOB_FOLDER}/$job_id/errors.txt")[7]) {
 		print_bug("Job $job_id generated errors");
 	    }
