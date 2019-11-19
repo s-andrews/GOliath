@@ -41,6 +41,10 @@ textarea {
   overflow: auto;
 }
 
+input[type=text] {
+    width: 94%;
+}
+
 select {
     font-size: 120%;
     width: 100%;
