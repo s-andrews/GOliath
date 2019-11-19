@@ -41,10 +41,6 @@ textarea {
   overflow: auto;
 }
 
-input[type=text] {
-    width: 94%;
-}
-
 select {
     font-size: 120%;
     width: 100%;
@@ -207,10 +203,10 @@ td.center {
   text-align: center;
 }
 
-/*td input[type="text"]  {
+td input[type="text"]  {
   width: 95%;
 }
-*/
+
 #biasSummaryTable td {
   background-color: #c7c7c7;
   padding: 0.2em;
