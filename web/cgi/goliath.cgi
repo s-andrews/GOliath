@@ -140,18 +140,11 @@ sub process_submission {
 	@background_list_genes = ();
     }
 
-# $job_id = generate_job_id();
+    if ($min_category_size > $max_category_size){
+      print_bug("minimum category size can't be greater than maximum category size");
+  }
+  
 
-#  chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Failed to move to job folder $job_id: $!");
-#  open (OUT1,'>','job_info.txt') or print_bug("Failed to write to job info file: $!"); 
-#  print OUT1 "query name\t$query_name\n";
-#  my $res = ($query_name eq "");
-#  print OUT1 "$res\n";
-#  my $length_query = length($query_name);
-#  print OUT1 "$length_query\n";  
-#  close OUT1;
-#  # my $job_id = "";
-#
   if(length($query_name) < 1){
     $job_id = generate_job_id();
   }
@@ -171,6 +164,8 @@ sub process_submission {
 
     chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Failed to move to job folder $job_id: $!");
 
+   
+
     # Now we can save the files
     open (OUT,'>','config.txt') or print_bug("Failed to write to config.txt: $!");
     print OUT "type\t$list_type\n";
@@ -180,16 +175,35 @@ sub process_submission {
     close OUT or print_bug("Failed to write to config.txt: $!");
 
     open (OUT,'>','gene_list.txt') or print_bug("Failed to write to gene_list.txt: $!");
+    
+    my $query_gene_count = 0;
+    my $bg_gene_count = 0;
+    
     foreach my $gene (@gene_list_genes) {
-	print OUT $gene,"\n";
+      $query_gene_count++;
+      print OUT $gene,"\n";
     }
     close (OUT) or print_bug("Failed to write to gene_list.txt: $!");
 
     open (OUT,'>','background_list.txt') or print_bug("Failed to write to background_list.txt: $!");
     foreach my $gene (@background_list_genes) {
-	print OUT $gene,"\n";
+      $bg_gene_count++;
+      print OUT $gene,"\n";
     }
     close (OUT) or print_bug("Failed to write to background_list.txt: $!");
+
+    
+    # write out a set of properties that can be shown in the properties tab
+    # they're a little bit different to the config file so we'll do it in a
+    # separate file
+    open (PROPERTIES,'>','property_info.txt') or print_bug("Failed to write to property_info.txt: $!");
+    print PROPERTIES "species\t$valid_species\n";
+    print PROPERTIES "min_category_size\t$min_category_size\n";
+    print PROPERTIES "max_category_size\t$max_category_size\n";
+    print PROPERTIES "number of query genes entered\t$query_gene_count\n";
+    print PROPERTIES "number of background genes entered\t$bg_gene_count\n";
+    print PROPERTIES "job id\t$job_id\n";
+    close (PROPERTIES) or print_bug("Failed to write to property_info.txt: $!");
 
     # Now we need to launch the actual analysis process.  For now we're just going to launch each
     # one as it comes in and see if we cope.  If it gets too bad we might have to institute a
@@ -247,7 +261,7 @@ sub process_submission {
   }
   
   close PID or die "Failed to write to pid file: $!";
-
+ 
   print $q->redirect("goliath.cgi?job_id=$job_id");
 
 }
@@ -342,12 +356,13 @@ sub show_job {
     unless ($complete) {
 	# We can't check the pid until we fix how the forking is working
 	# We'll settle for seeing if the error file is empty instead.
+  # !! Disabling this error check for now !!
 
-	if (-e "$config->{JOB_FOLDER}/$job_id/broke.txt") {
-	    if ((stat "$config->{JOB_FOLDER}/$job_id/errors.txt")[7]) {
-		print_bug("Job $job_id generated errors");
-	    }
-	}
+#	if (-e "$config->{JOB_FOLDER}/$job_id/broke.txt") {
+#	    if ((stat "$config->{JOB_FOLDER}/$job_id/errors.txt")[7]) {
+#		print_bug("Job $job_id generated errors");
+#	    }
+#	}
 	# We can check to see that the pid for this process is still alive
 #	if (-e "$config->{JOB_FOLDER}/$job_id/pid.txt") {
 #	    open(PID,"$config->{JOB_FOLDER}/$job_id/pid.txt") or print_bug("Couldn't open pid file for $job_id: $!");
@@ -433,7 +448,41 @@ sub show_job {
     };
 	}
 
+  open(IN_PROP,"property_info.txt") or print_bug("Couldn't open property_info.txt: $!");
+  my @data = <IN_PROP>;
+  close IN_PROP;
+
+  my @properties_info;
+
+  my ($title, $species) = split(/\t/, $data[0]);    
+  ($title, my $min_category_size) = split(/\t/, $data[1]);
+  ($title, my $max_category_size) = split(/\t/, $data[2]);
+  ($title, my $query_no) = split(/\t/, $data[3]);
+  ($title, my $bg_no) = split(/\t/, $data[4]);    
+  ($title, my $job) = split(/\t/, $data[5]);
+
+  push @properties_info, {
+
+    SPECIES => $species,
+    MIN_CATEGORY_SIZE => $min_category_size,
+    MAX_CATEGORY_SIZE => $max_category_size,
+    QUERY_NO => $query_no,
+    BG_NO => $bg_no,
+    JOB => $job,
+  }; 
+
+  open (CGI_LOG,'>','cgi_log.txt') or print_bug("Failed to write to cgi_log.txt: $!");
+  print CGI_LOG $species;
+  print CGI_LOG $min_category_size;
+  print CGI_LOG $max_category_size;
+  print CGI_LOG $query_no;
+  print CGI_LOG $bg_no;
+  print CGI_LOG $job;
+  close CGI_LOG;
+
 	$template -> param(BIAS_SUMMARY => \@bias_summary);
+
+  $template -> param(PROPERTIES_INFO => \@properties_info);
 
 
 	# Add the Properties images
@@ -501,4 +550,3 @@ sub encode_image {
 
     return "data:image/png;base64," . MIME::Base64::encode_base64($data);
 }
-

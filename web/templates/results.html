@@ -25,10 +25,6 @@
 
 <h3 id="hit_table_header">Hit table</h3>
 
-<!-- 
-<input type="button" class="button" id="downloadButton" value="Download Table">
--->
-
 <!-- TMPL_IF NAME=HIT_TABLE -->
 <table class="results" id="results_table" style="width:100%">
   <thead>
@@ -94,13 +90,44 @@
 <!-- The content for the search properties -->
 <div class="resultdiv" id="propertydiv">
 <h3>Query and Background Properties</h3>
+<br><br>
 
-<!--
-<h4>Gene Lengths</h4>
-<h4>GC Content</h4>
-<h4>Chromosomal Locations</h4>
--->
+<table class="prop" id="query_properties" name="properties_info">
+  <!-- TMPL_LOOP NAME=PROPERTIES_INFO -->
+  <tr>
+    <th>Species</th>
+    <td><!-- TMPL_VAR NAME=SPECIES ESCAPE=HTML --></td>
+  </tr>
+  <tr>
+    <th>Minimum number of genes in functional category</th>
+    <td><!-- TMPL_VAR NAME=MIN_CATEGORY_SIZE ESCAPE=HTML --></td>
+  </tr>
+  <tr>  
+    <th>Maximum number of genes in functional category</th>
+    <td><!-- TMPL_VAR NAME=MAX_CATEGORY_SIZE ESCAPE=HTML --></td>
+  </tr>
+  <tr>  
+    <th>Number of query genes entered</th>
+    <td><!-- TMPL_VAR NAME=QUERY_NO ESCAPE=HTML --></td>
+  </tr>
+  <tr>  
+    <th>Number of background genes entered</th>
+    <td><!-- TMPL_VAR NAME=BG_NO ESCAPE=HTML --></td>
+  </tr>
+  <tr>  
+    <th>Job id</th>
+    <td><!-- TMPL_VAR NAME=JOB ESCAPE=HTML --></td>
+  </tr>
+  <!-- /TMPL_LOOP -->
+</table>
+<br>
+<br>
+<h4 id="properties_text">
+The plots below show properties of the set of query genes that were entered compared
+to the genes used as the background set.
+</h4>
 
+<br>
 <p class="graph center">
   <img src="<!-- TMPL_VAR NAME=GENELENGTH_GRAPH ESCAPE=HTML -->" alt="Gene Length Graph">
 </p>

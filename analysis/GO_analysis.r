@@ -41,11 +41,10 @@ if(max_category_size == ""){
 
 min_category_size <- as.numeric(min_category_size)
 max_category_size <- as.numeric(max_category_size)
- 
-#type <- config.info["type",]
-#species <- config.info["species",]
-#min_category_size <- config.info["min_category_size	",]
-#min_category_size <- config.info["min_category_size	",]
+
+if(max_category_size < 1){
+  max_category_size = 500
+}
 
 if (is.na(type)) {
     print("gene list type not detected")

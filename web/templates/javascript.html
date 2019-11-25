@@ -246,12 +246,15 @@ $(document).ready(function () {
 
   if (biasclass in popovers) {
   $("#biasexplanation").css({
-  "left": (e.pageX+25)+"px",
-  "top": e.pageY+"px"
+  //"left": (e.pageX+25)+"px",
+  "left": (e.pageX-90)+"px",
+  "top": e.pageY+20+"px"
   })
   $("#biasexplanation").html(popovers[biasclass])
 
   $("#biasexplanation").show()
+  
+  console.log("trying to show info");
   
   }
   });
