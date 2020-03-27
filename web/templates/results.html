@@ -9,7 +9,8 @@
 <script src="vfs_fonts.js"></script>
 <script src="jszip.min.js"></script>
 
-<h2 id="job_id">Results for job <!-- TMPL_VAR NAME=JOB_ID ESCAPE=HTML --></h2>
+
+<h2 id="job_id">Results for job <!-- TMPL_VAR NAME=JOB_NAME ESCAPE=HTML --></h2>
 
 <div id="resultstabs">
 
@@ -26,7 +27,8 @@
 <h3 id="hit_table_header">Hit table</h3>
 
 <!-- TMPL_IF NAME=HIT_TABLE -->
-<table class="results" id="results_table" style="width:100%">
+<table class="results" id="results_table">
+<!--<table class="results" id="results_table" style="width:100%"> -->
   <thead>
   <tr>
     <th>Gene Set</th>
@@ -51,7 +53,7 @@
     <td><!-- TMPL_VAR NAME=ENRICHMENT ESCAPE=HTML --></td>
     <td>
       <!-- TMPL_LOOP NAME=POTENTIAL_BIAS -->
-      <span class="bias <!-- TMPL_VAR NAME=CLASS ESCAPE=HTML -->"><!-- TMPL_VAR NAME=BIAS ESCAPE=HTML --></span>
+      <span id="potential_bias" class="bias <!-- TMPL_VAR NAME=CLASS ESCAPE=HTML -->"><!-- TMPL_VAR NAME=BIAS ESCAPE=HTML --></span>
       <!-- /TMPL_LOOP -->
     </td>
   </tr> 

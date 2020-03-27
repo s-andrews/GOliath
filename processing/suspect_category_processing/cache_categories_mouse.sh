@@ -1,17 +1,18 @@
-# to run the script ./cache_categories.sh suspect_categories/*
+# to run the script ./cache_categories_mouse.sh
 # the description is taken from the file name
-# the file must contain GO (or other) ids in the firt column - this doesn't check
-outfile="../../suspect_GO_categories/suspect_categories.txt"
+# the file must contain GO (or other) ids in the first column - this doesn't check
+outfile="../../suspect_GO_categories/mouse/suspect_categories.txt"
 echo -e "GO_ID\tbias_source" > $outfile
 echo -e "writing to file $outfile"
 
-all_files=$@
+#all_files=$@
+all_files="suspect_categories/mouse/*";
 
 for file in $all_files; do 
 	filename=$(basename $file);
 	description=${filename%".txt"}; # remove .txt from filename
 	first_col=$(cut -f1 $file)
-	
+
 	cut -f1 $file | while read -r line; do
 		if [[ $line =~ .*%GO:.* ]]; then
 			IFS='%' read -ra category_info <<< $line					

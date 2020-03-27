@@ -127,27 +127,28 @@ $.fn.dataTable.ext.search.push(
 $(document).ready(function () {
 
   var first_search_box = $('#results_table tfoot th')[0];
-  $(first_search_box).html( '<input type="text" id="gene_set" placeholder="Search gene set" />' );
+  $(first_search_box).html( '<input type="text" id="gene_set" class = "footerfilter" placeholder="Search gene set" />' );
  
-  $($('#results_table tfoot th')[1]).html( '<input type="text" id="source" placeholder="Search source" />' );
+  $($('#results_table tfoot th')[1]).html( '<input type="text" id="source" class = "footerfilter" placeholder="Search source" />' );
   
-  $($('#results_table tfoot th')[2]).html( '<input type="text" id="min_query" placeholder="min query" />' );
-  $($('#results_table tfoot th')[10]).html( '<input type="text" id="max_query" placeholder="max query" />' );
+  $($('#results_table tfoot th')[2]).html( '<input type="text" id="min_query" class = "footerfilter" placeholder="min query" />' );
+  $($('#results_table tfoot th')[10]).html( '<input type="text" id="max_query" class = "footerfilter" placeholder="max query" />' );
 
-  $($('#results_table tfoot th')[3]).html( '<input type="text" id="min_bg" placeholder="min bg" />' );
-  $($('#results_table tfoot th')[11]).html( '<input type="text" id="max_bg" placeholder="max bg" />' );
+  $($('#results_table tfoot th')[3]).html( '<input type="text" id="min_bg" class = "footerfilter" placeholder="min bg" />' );
+  $($('#results_table tfoot th')[11]).html( '<input type="text" id="max_bg" class = "footerfilter" placeholder="max bg" />' );
 
-  $($('#results_table tfoot th')[4]).html( '<input type="text" id="min_category_size" placeholder="min size" />' );
-  $($('#results_table tfoot th')[12]).html( '<input type="text" id="max_category_size" placeholder="max size" />' );
+  $($('#results_table tfoot th')[4]).html( '<input type="text" id="min_category_size" class = "footerfilter" placeholder="min size" />' );
+  $($('#results_table tfoot th')[12]).html( '<input type="text" id="max_category_size" class = "footerfilter" placeholder="max size" />' );
   
-  $($('#results_table tfoot th')[5]).html( '<input type="text" id="min_FDR=" placeholder="min FDR" />' );
-  $($('#results_table tfoot th')[13]).html( '<input type="text" id="max_FDR" placeholder="max FDR" />' );
+  $($('#results_table tfoot th')[5]).html( '<input type="text" id="min_FDR=" class = "footerfilter" placeholder="min FDR" />' );
+  $($('#results_table tfoot th')[13]).html( '<input type="text" id="max_FDR" class = "footerfilter" placeholder="max FDR" />' );
 
-  $($('#results_table tfoot th')[6]).html( '<input type="text" id="min_enrichment" placeholder="min enrichment" />' );
-  $($('#results_table tfoot th')[14]).html( '<input type="text" id="max_enrichment" placeholder="max enrichment" />' );
+  $($('#results_table tfoot th')[6]).html( '<input type="text" id="min_enrichment" class = "footerfilter" placeholder="min enrichment" />' );
+  $($('#results_table tfoot th')[14]).html( '<input type="text" id="max_enrichment" class = "footerfilter" placeholder="max enrichment" />' );
  
-  $($('#results_table tfoot th')[7]).html( '<input type="text" id="bias" placeholder="Search bias" />' );
+  $($('#results_table tfoot th')[7]).html( '<input type="text" id="bias" class = "footerfilter" placeholder="Search bias" />' );
   
+// https://datatables.net/examples/api/multi_filter_select.html
   
     // DataTable
     var table = $("#results_table").DataTable({
@@ -185,6 +186,45 @@ $(document).ready(function () {
         } );
     } );
 
+//https://datatables.net/examples/api/multi_filter_select.html
+
+// I haven't got this to work yet as the potential bias column contains a 
+// load of info beyond just the text, so it would need to be extracted 
+ /**     table.columns([7]).every( function () {
+ 
+      var column = this;
+        var select = $('<select><option value=""></option></select>')
+            .appendTo( $(column.footer()).empty() )
+            .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                    $(this).val()
+                );
+
+                column
+                    .search( val ? '^'+val+'$' : '', true, false )
+                    .draw();
+            } );
+
+         column.data().unique().sort().each( function ( d, j ) {
+              //select.append( '<option value="'+d+'">'+d+'</option>' )
+              console.log("d = " + d);
+              
+              if(d.includes("public")){
+                console.log("match to public data");
+              
+                select.append('<option value="public data"</option>')
+              }  
+          } );
+          
+          column.data().unique().sort().each( function ( d, j ) {
+            console.log("d = " + d);
+            console.log("j = " + j);
+          } ); 
+          
+    } ); 
+**/
+
+
     table.columns().every( function () {
         var that = this;
  
@@ -220,51 +260,61 @@ $(document).ready(function () {
 
   $("#resultstabs ul li").click(function() {
   
-  $("#resultstabs ul li").removeClass("selected");
-  $(this).addClass("selected");
-  id = $(this).attr("id");
+    $("#resultstabs ul li").removeClass("selected");
+    $(this).addClass("selected");
+    id = $(this).attr("id");
 
-  $(".resultdiv").hide()
+    $(".resultdiv").hide()
 
-  if (id == "tabletab") {
-  $("#tablediv").show();
-  }
+    if (id == "tabletab") {
+      $("#tablediv").show();
+    }
 
-  if (id == "propertytab") {
-  $("#propertydiv").show();
-  }
+    if (id == "propertytab") {
+      $("#propertydiv").show();
+    }
 
-  if (id == "biasestab") {
-  $("#biasesdiv").show();
-  }
+    if (id == "biasestab") {
+      $("#biasesdiv").show();
+    }
   
   });
   
-  $(".bias").click(function(e){
-  
-  var biasclass=$(this).attr('class').split(" ")[1];
+ 
+ //https://www.gyrocode.com/articles/jquery-datatables-why-click-event-handler-does-not-work/
+  //$(".bias").click(function(e){ // this was the wrong way to do it apparently 
+  // if we want it to work when the table gets sorted
 
-  if (biasclass in popovers) {
-  $("#biasexplanation").css({
-  //"left": (e.pageX+25)+"px",
-  "left": (e.pageX-90)+"px",
-  "top": e.pageY+20+"px"
-  })
-  $("#biasexplanation").html(popovers[biasclass])
+  $('#results_table').on('click', '.bias', function(e){
+  
+    e.stopPropagation(); // if we don't have this the bias explanation gets hidden before we even see it
+  
+    var biasclass=$(this).attr('class').split(" ")[1];
 
-  $("#biasexplanation").show()
-  
-  console.log("trying to show info");
-  
-  }
+    if (biasclass in popovers) {
+      $("#biasexplanation").css({
+        //"left": (e.pageX+25)+"px",
+        "left": (e.pageX-90)+"px",
+        "top": e.pageY+20+"px"
+      })
+      $("#biasexplanation").html(popovers[biasclass])
+
+      $("#biasexplanation").show()
+    
+    }
   });
+
+  $('body').click(function(e){    
+    $(document.getElementById('biasexplanation')).hide();
+  });
+
 
   $("#header").click(function(e){
     console.log("header has been clicked");
   });
 
   $("#biasexplanation").click(function(e){
-  $(this).hide();
+    $(this).hide();
   });
   
 //https://code-maven.com/create-and-download-csv-with-javascript

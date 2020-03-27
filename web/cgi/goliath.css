@@ -161,7 +161,7 @@ th {
   background-color: #333333;
   color: white;
   padding: 0.6em;
-  font-size: 120%;
+  font-size: 100%;
   font-weight: normal;
 }
 
@@ -206,6 +206,8 @@ td.center {
 td input[type="text"]  {
   width: 95%;
 }
+
+
 
 #biasSummaryTable td {
   background-color: #c6c6c6;
@@ -347,17 +349,37 @@ td input[type="text"]  {
 }
 
 #results_table td {
-    font-size:80%;
-    padding: 0.2em;
+  border-left: 1.5px solid white;
+  font-size:80%;
+  padding: 0.2em;
 }
 
+/**table, th, td {
+  border: 1px solid black;
+}
+**/
+table {
+  border: 2px solid black;
+}
+
+th {
+  border: 1px solid white;
+}  
+
+
 #results_table tr.odd{
-  background-color:#e8e8e8
+  background-color:white
+  
 }
 
 #results_table tr.even{
-  background-color:white
+  background-color:#e8e8e8
 }
+
+.footerfilter {
+  border: 0px;
+}
+
 
 /** Adapted from jquery.dataTables.min.css **/
 table.dataTable{width:100%;margin:0 auto;clear:both;border-collapse:separate;border-spacing:0}
@@ -365,9 +387,9 @@ table.dataTable thead th,table.dataTable tfoot th{font-weight:bold}
 table.dataTable thead th,table.dataTable thead td{
     padding:10px 18px;
     border-bottom:1px solid #111;
-    border-left:1px solid #f4f4f4;
+/**    border-left:1px solid #f4f4f4;
     border-right:1px solid #f4f4f4;
-    }
+**/    }
 
 table.dataTable thead th:active,table.dataTable thead td:active{outline:none}
 /**table.dataTable tfoot th,table.dataTable tfoot td{padding:10px 18px 6px 18px;border-top:1px solid #111} **/
@@ -381,10 +403,13 @@ table.dataTable thead .sorting,table.dataTable thead .sorting_asc,table.dataTabl
 }
 
 table.dataTable tfoot th{
-/*  margin: 0.3em; */
-  padding: 0.1em 0.3em;
-  background-color: #c9abab;
-  width: 100%;
+
+  padding: 0.2em;
+  background-color: white;
+  width: 100%;  
+  border-left: solid black 0.5px;
+  border-right: solid black 0.5px;
+  border-top: solid black 2px;
 }
 
 table.dataTable.no-footer{border-bottom:1px solid #111} */
@@ -393,7 +418,7 @@ table.dataTable.no-footer{border-bottom:1px solid #111} */
   padding-top:0.5em;
   margin-top:1em;
   font-size:80%;
-  /*background:orange;*/
+ /** background:orange;**/
 }  
   
 #results_table_length select {
@@ -480,5 +505,10 @@ tfoot input {
   padding-right: 15%;
 }  
   
-  
+#gene_list{
+  padding: 1%;
+}  
    
+#background{
+  padding: 1%;
+} 

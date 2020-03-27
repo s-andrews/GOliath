@@ -37,12 +37,14 @@ my $job_id = $q -> param("job_id");
 if ($job_id) {
     show_job($job_id);
 }
+
 elsif ($q -> param("submit")) {
     process_submission();
 }
 else {
     show_home();
 }
+
 
 sub show_home {
 
@@ -106,6 +108,7 @@ sub process_submission {
     my $background_list_text = $q -> param("background_list");
     my $min_category_size = $q -> param("minsize");
     my $max_category_size = $q -> param("maxsize");
+      
     my $query_name = $q -> param("name");
 
     unless ($species) {
@@ -115,10 +118,10 @@ sub process_submission {
     my $valid_species;
 
     foreach my $known_species (@species) {
-	if ($known_species eq $species) {
-	    $valid_species = $known_species;
-	    last;
-	}
+      if ($known_species eq $species) {
+          $valid_species = $known_species;
+          last;
+      }
     }
 
     unless ($valid_species) {
@@ -133,7 +136,7 @@ sub process_submission {
     my @background_list_genes = get_genes($background_list_text,$valid_species);
 
     unless (@gene_list_genes) {
-	print_bug("Found no gene list genes");
+      print_bug("Found no gene list genes");
     }
 
     if ($list_type eq "Ordered") {
@@ -142,38 +145,31 @@ sub process_submission {
 
     if ($min_category_size > $max_category_size){
       print_bug("minimum category size can't be greater than maximum category size");
-  }
-  
-
-  if(length($query_name) < 1){
-    $job_id = generate_job_id();
-  }
-  else{
-  # if there's already a job of that name, we should tell them that it needs to be named differently,
-  # right now it will just make a random job name rather than overwriting the job folder.
-    if (-e "$config->{JOB_FOLDER}/$query_name"){
-      $job_id = generate_job_id();
     }
-    else{
-      $job_id = generate_named_job_id($query_name);
-    }  
-  }
+  
+    $job_id = generate_job_id();
+
 
     # Making the job id should have created a folder in the jobs
     # folder for us.
 
     chdir ("$config->{JOB_FOLDER}/$job_id") or print_bug("Failed to move to job folder $job_id: $!");
 
-   
-
     # Now we can save the files
-    open (OUT,'>','config.txt') or print_bug("Failed to write to config.txt: $!");
+    open (OUT,'>','config.txt') or print_bug("Failed to write to config.txt: $!");   
     print OUT "type\t$list_type\n";
     print OUT "species\t$RealBin/../../godata/$valid_species\n";
     print OUT "min_category_size\t$min_category_size\n";
     print OUT "max_category_size\t$max_category_size\n";
-    close OUT or print_bug("Failed to write to config.txt: $!");
 
+    if(length($query_name) < 1){     
+      $query_name = $job_id;
+    } 
+    
+    print OUT "job_name\t$query_name\n";
+       
+    close OUT or print_bug("Failed to write to config.txt: $!");
+    
     open (OUT,'>','gene_list.txt') or print_bug("Failed to write to gene_list.txt: $!");
     
     my $query_gene_count = 0;
@@ -295,26 +291,6 @@ sub generate_job_id {
 
 }
 
-sub generate_named_job_id {
-
-  my ($job_name) = @_;
-
-	if (-e "$config->{JOB_FOLDER}/$job_name") {
-	    warn "Job $job_name already exists";
-	    next;
-	}
-
-	unless (mkdir("$config->{JOB_FOLDER}/$job_name")) {
-	    # The chances of generating the same code at the same time
-	    # are pretty small so we'll assume this is a bug
-	    print_bug("Failed to make job folder for $job_name: $!");
-	}
-
-	return $job_name;
-
-}
-
-
 
 
 sub get_genes {
@@ -378,6 +354,7 @@ sub show_job {
     my $template = HTML::Template -> new(filename => "$RealBin/../templates/results.html");
 
     $template -> param(JOB_ID => $job_id,
+           #JOB_NAME => $query_name,
 		       EXISTS => $exists,
 		       COMPLETE => $complete);
 
@@ -405,12 +382,13 @@ sub show_job {
 
 	    my @biases;
 	    if ($potential_bias ne "none found") {
-		foreach my $bias (split(/\s*,\s*/,$potential_bias)) {
-		    my $class=$bias;
-		    $class =~ s/ .*//;
-		    $class =~ s/\d+$//;
-		    push @biases, {BIAS => $bias, CLASS=>$class};
-		}
+      
+        foreach my $bias (split(/\s*,\s*/,$potential_bias)) {
+            my $class=$bias;
+            $class =~ s/ .*//;
+            $class =~ s/\d+$//;
+            push @biases, {BIAS => $bias, CLASS=>$class};
+        }
 	    }
 
 	    
@@ -430,8 +408,21 @@ sub show_job {
   
   
 	$template -> param(HIT_TABLE => \@hit_table);
+  
+  # read the config file to get the job name if it was specified
+  open(IN_CONFIG,"config.txt") or print_bug("Couldn't open config file for $job_id: $!");
+  
+  while (<IN_CONFIG>) {
+    chomp;
+    my ($row_name, $data) = split('\t');
+    if ($row_name eq "job_name"){
+          
+      $template -> param(JOB_NAME => $data);
+    }
+  }
+  close CONFIG;
 
-	# Read the hit table
+	# Read the summary table
 	my @bias_summary;
 	open(IN_STATS,"summary_stats.txt") or print_bug("Couldn't open summary stats for $job_id: $!");
 	$_ = <IN_STATS>; # Remove header

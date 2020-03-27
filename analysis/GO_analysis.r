@@ -70,23 +70,33 @@ query_genes <- runGOA::clean_text(query_genes)
 bg_genes    <- runGOA::clean_text(bg_genes)
 print(head(query_genes))
 print(head(bg_genes))
+species_common <- NULL
 
 if (grepl(pattern = "Homo_Sapiens", species)) {
-    go.categories <- human_categories
+    species_common <- "human"
 } else if (grepl(pattern = "Mus musculus", species)) {
+    species_common <- "mouse"
+} else {
+    stop("Couldn't match species")
+}
+
+
+if (species_common == "human") {
+    go.categories <- human_categories
+} else if (species_common == "mouse") {
     go.categories <- mouse_categories
 } else {
-    print("Couldn't find GO category file")
+    stop("Shouldn't have got to here, something's gone wrong")
 }
 
 #===========================
 # import the gene info file
 #===========================
 # this needs sorting properly 
-if (grepl(pattern = "Homo_Sapiens", species)) {
+if (species_common == "human") {
     gene_info_file_location <- here::here("gene_info_data/Homo sapiens/","GRCh38.80_gene_info.txt")
     all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
-} else if (grepl(pattern = "Mus musculus", species)) {
+} else if (species_common == "mouse") {
     gene_info_file_location <- here::here("gene_info_data/Mus musculus","GRCm38.80_gene_info.txt")
     all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
 } else {
@@ -132,7 +142,18 @@ if(is.null(go_results)){
 	#==================================
 	# check against suspect categories
 	#==================================
-	suspects <- read.delim(here::here("suspect_GO_categories","suspect_categories.txt"))
+	
+    if (species_common == "human") {
+        suspects <- read.delim(here::here("suspect_GO_categories/human","suspect_categories.txt"))
+        print("read the human suspect file")
+    }
+    else if (species_common == "mouse") {
+        suspects <- read.delim(here::here("suspect_GO_categories/mouse","suspect_categories.txt"))
+        print("read the mouse suspect file")
+    }
+    else {
+        stop("Shouldn't have got to here, something's gone wrong with finding the suspect categories")
+    }
 
 	print("read the suspect file")
 
