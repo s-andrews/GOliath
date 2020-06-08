@@ -40,6 +40,7 @@
           return "10000"; 
       else return value;
   }
+  
 //*ends - number range validation
   
  
@@ -53,7 +54,7 @@
   <tr>
     <th>Select species</th>
     <td>
-      <select name="species">
+      <select id="species" name="species">
 	<!-- TMPL_LOOP NAME=SPECIES -->
 	<option><!-- TMPL_VAR NAME=SPECIES --></option>
 	<!-- /TMPL_LOOP -->
