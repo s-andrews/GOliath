@@ -106,6 +106,8 @@ if (species_common == "human") {
 # make sure gene names are upper case
 all_gene_info[,"gene_name"] <- toupper(all_gene_info[,"gene_name"])
 
+print("Sorting background genes")
+print(Sys.time())
 
 #=======================
 # for empty background
@@ -114,29 +116,49 @@ all_gene_info[,"gene_name"] <- toupper(all_gene_info[,"gene_name"])
 # this needs to be a more robust check...
 ifelse((length(bg_genes) == 0), bg_genes <- unique(unlist(go.categories)), bg_genes <- remove_duplicates(bg_genes))
 
+if(length(bg_genes) == 0) {
+  bg_genes <- unique(unlist(go.categories))
+
+} else {
+  bg_genes <- remove_duplicates(c(query_genes, bg_genes)) ## sometimes the query genes aren't in the background set - we'll add them in and remove duplicates
+}
+
+
 #====================
 # remove duplicates
 #====================
 query_genes <- remove_duplicates(query_genes)
 
-# check whether all the query genes are in the background genes
+# check whether all the query genes are in the background genes 
+# we add the query genes to the background genes so this isn't needed
 query_filt <- query_genes
-if (sum(!query_genes %in% bg_genes > 0)) {
-    print("not all query genes found in background genes")
-    print(query_genes[!query_genes %in% bg_genes])
-    
-    query_filt <- query_genes[query_genes %in% bg_genes]
-}	
+#if (sum(!query_genes %in% bg_genes > 0)) {
+#    print("not all query genes found in background genes")
+#    print(query_genes[!query_genes %in% bg_genes])
+#    
+#    query_filt <- query_genes[query_genes %in% bg_genes]
+#}
+	
 
+print("About to run GO analysis")
+print(Sys.time())
 
 #===========================
 # The GO analysis
 #=============================
 go_results <- runGOA::overrep_test(go.categories, query_filt, bg_genes, min_genes_in_category = min_category_size, max_genes_in_category = max_category_size)
 
+print("Got the GO results")
+print(Sys.time())
+
 if(is.null(go_results)){
 	warning("no significant results found")
 	write.table(go_results, "GO_analysis_results.txt", quote = FALSE, sep = "\t")
+    sink("summary_stats.txt")
+    print("no categories flagged")
+    sink()
+    
+    
 } else {	
 
 	#==================================
@@ -238,6 +260,9 @@ if(is.null(go_results)){
   as.data.frame(size_of_bias_categories)
 }
 
+print("Checked against suspect categories")
+print(Sys.time())
+
 
 #=================
 # screening plots
@@ -263,10 +288,11 @@ if (!is.null(all_gene_info)) {
     #=============================================
     print("number of background genes =")
     print(length(bg_genes))
+    print(head(bg_genes))
     gene_info <- all_gene_info[all_gene_info[,"gene_name"] %in% bg_genes,]
     
     print("number of genes in gene info file that matched the background genes = ")
-    print(nrow(all_gene_info))
+    print(nrow(gene_info))
     
     # we probably have duplicates in the gene info file but this shouldn't be a problem if we use ensembl ids
     
@@ -274,6 +300,9 @@ if (!is.null(all_gene_info)) {
     gene_info$query <- gene_info[,"gene_name"] %in% query_filt
     
 }
+
+print("screening plot filtering done")
+print(Sys.time())
 
 
 #============
@@ -284,7 +313,7 @@ if (!is.null(all_gene_info)) {
 # The GC plot 
 #=============
 
-print(head(all_gene_info))
+print(head(gene_info))
 
 query_GC <- get_GC(query_filt, gene_info)
 bg_GC    <- get_GC(bg_genes, gene_info)
@@ -311,6 +340,7 @@ png("GC.png", width = 600, height = 400)
 p
 dev.off()
 
+print("done GC plot")
 
 #=============
 # length plot
@@ -340,28 +370,45 @@ png("gene_lengths.png", width = 600, height = 400)
 p
 dev.off()
 
+
 #=============
 # chr plot
 #=============
+print("in chr plot1")
 query_chr <- get_chromosomes(query_filt, gene_info)
 bg_chr    <- get_chromosomes(bg_genes, gene_info)
 
-chr_list  <- list(query = query_chr, background = bg_chr)
+chrs <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")
 
-zz <- file("all.Rout", open="wt")
-sink(zz, type="message")
+query_tbl <- as_tibble(query_chr) %>%
+  count(value) %>%
+  mutate(query = n/sum(n)) %>%
+  select(-n) 
 
-chr_proportions <- get_chr_percentage(chr_list)
+print("in chr plot2")
 
-## reset message sink and close the file connection
-sink(type="message")
-close(zz)
+whole_tbl <- as_tibble(bg_chr) %>%
+  count(value) %>%
+  mutate(bg = n/sum(n)) %>%
+  select(-n) %>%
+  full_join(query_tbl, by = "value") %>%
+  pivot_longer(-value, names_to = "type", values_to = "proportion") %>%
+  rename(chr = value) %>%
+  mutate(proportion = proportion * 100) # to make it work with the plot
 
-chr <- rownames(chr_proportions)
+save(whole_tbl, file = "whole_tbl.rda")
 
-tidy_chr <- tibble::as_tibble(chr_proportions) %>%
-  mutate(chr = factor(chr, levels = chr)) %>%
-  tidyr::gather(`query`, `background`, key = "type", value = "proportion")
+print(head(whole_tbl))
+
+print("in chr plot3")
+
+chrs <- chrs[chrs %in% whole_tbl$chr]
+print("in chr plot4")
+
+tidy_chr <- whole_tbl %>%  
+  mutate(chr = forcats::fct_relevel(.f = chr, chrs))  
+
+print("in chr plot3")
 
 p <- ggplot(tidy_chr, aes(x = chr, y = proportion, fill = type, color = type)) +
   geom_col(position = position_dodge(width = 0.7), width = 0.7) +
@@ -385,5 +432,3 @@ p
 dev.off()
 
 write("", file = "finished.flag")
-
-#warning("Warning message 6")
