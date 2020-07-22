@@ -85,7 +85,11 @@ if (species_common == "human") {
     go.categories <- human_categories
 } else if (species_common == "mouse") {
     go.categories <- mouse_categories
-} else {
+} else if (species_common == "yeast") {
+    load(here::here("godata/yeast/yeast_categories.rda"))
+    go.categories <- yeast_categories
+    rm(yeast_categories)
+}  else {
     stop("Shouldn't have got to here, something's gone wrong")
 }
 
@@ -94,17 +98,23 @@ if (species_common == "human") {
 #===========================
 # this needs sorting properly 
 if (species_common == "human") {
-   # gene_info_file_location <- here::here("gene_info_data/Homo sapiens/","GRCh38.80_gene_info.txt")
-   # all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
+
     load(here::here("processing/gene_info_processing/human_genfo.rda"))
     all_gene_info <- human_genfo
     rm(human_genfo)
+    
 } else if (species_common == "mouse") {
-    #gene_info_file_location <- here::here("gene_info_data/Mus musculus","GRCm38.80_gene_info.txt")
-    #all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
+  
     load(here::here("processing/gene_info_processing/mouse_genfo.rda"))
     all_gene_info <- mouse_genfo
     rm(mouse_genfo)
+    
+} else if (species_common == "yeast") {
+  
+  load(here::here("processing/gene_info_processing/yeast_genfo.rda"))
+  all_gene_info <- yeast_genfo
+  rm(yeast_genfo)
+  
 } else {
     print("Couldn't find gene info file")
 }
@@ -178,6 +188,10 @@ if(is.null(go_results)){
     else if (species_common == "mouse") {
         suspects <- read.delim(here::here("suspect_GO_categories/mouse","suspect_categories.txt"))
         print("read the mouse suspect file")
+    }
+    else if (species_common == "yeast") {
+      suspects <- read.delim(here::here("suspect_GO_categories/yeast","suspect_categories.txt"))
+      print("read the yeast suspect file")
     }
     else {
         stop("Shouldn't have got to here, something's gone wrong with finding the suspect categories")
@@ -384,7 +398,19 @@ dev.off()
 query_chr <- get_chromosomes(query_filt, gene_info)
 bg_chr    <- get_chromosomes(bg_genes, gene_info)
 
-chrs <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")
+#chrs <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")
+
+chromosomes <- list(
+  mouse = c(1:19,"MT","X","Y"),
+  human = c(1:22,"MT","X","Y"),
+  yeast = c("I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","Mito")
+)
+
+chrs <- switch(species, 
+               human = chromosomes$human,
+               mouse = chromosomes$mouse,
+               yeast = chromosomes$yeast)
+
 
 query_tbl <- as_tibble(query_chr) %>%
   count(value) %>%
