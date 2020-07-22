@@ -285,38 +285,38 @@ print(Sys.time())
 # screening plots
 #=================
 
-if (!is.null(all_gene_info)) {
-    
-    chromosomes <- list(
-        mouse = c(1:19,"MT","X","Y"),
-        human = c(1:22,"MT","X","Y"),
-        rat = c(1:20,"MT","X","Y"),  
-        worm = c("I","II","III","IV","MtDNA","V","X"),
-        zebrafish = c(1:25,"MT")
-    )
-    
-    # clean up the gene names
-    #   all_gene_info[,"gene_name"] <- toupper(clean_text(all_gene_info[,"gene_name"]))
-    
-    print(head(all_gene_info))
-    
-    #=============================================
-    # remove any genes not in the background list
-    #=============================================
-    print("number of background genes =")
-    print(length(bg_genes))
-    print(head(bg_genes))
-    gene_info <- all_gene_info[all_gene_info[,"gene_name"] %in% bg_genes,]
-    
-    print("number of genes in gene info file that matched the background genes = ")
-    print(nrow(gene_info))
-    
-    # we probably have duplicates in the gene info file but this shouldn't be a problem if we use ensembl ids
-    
-    # add a TRUE/FALSE column for whether the gene is a query gene
-    gene_info$query <- gene_info[,"gene_name"] %in% query_filt
-    
-}
+#if (!is.null(all_gene_info)) {
+#    
+#    chromosomes <- list(
+#        mouse = c(1:19,"MT","X","Y"),
+#        human = c(1:22,"MT","X","Y"),
+#        rat = c(1:20,"MT","X","Y"),  
+#        worm = c("I","II","III","IV","MtDNA","V","X"),
+#        zebrafish = c(1:25,"MT")
+#    )
+#    
+#    # clean up the gene names
+#    #   all_gene_info[,"gene_name"] <- toupper(clean_text(all_gene_info[,"gene_name"]))
+#    
+#    print(head(all_gene_info))
+#    
+#    #=============================================
+#    # remove any genes not in the background list
+#    #=============================================
+#    print("number of background genes =")
+#    print(length(bg_genes))
+#    print(head(bg_genes))
+#    gene_info <- all_gene_info[all_gene_info[,"gene_name"] %in% bg_genes,]
+#    
+#    print("number of genes in gene info file that matched the background genes = ")
+#    print(nrow(gene_info))
+#    
+#    # we probably have duplicates in the gene info file but this shouldn't be a problem if we use ensembl ids
+#    
+#    # add a TRUE/FALSE column for whether the gene is a query gene
+#    gene_info$query <- gene_info[,"gene_name"] %in% query_filt
+#    
+#}
 
 print("screening plot filtering done")
 print(Sys.time())
@@ -330,7 +330,7 @@ print(Sys.time())
 # The GC plot 
 #=============
 
-print(head(gene_info))
+#print(head(gene_info))
 
 #query_GC <- get_GC(query_filt, gene_info)
 #bg_GC    <- get_GC(bg_genes, gene_info)
