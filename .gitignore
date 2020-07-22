@@ -21,4 +21,6 @@ nytprof.out
 *~
 .*
 jobs/*
-godata/*
+godata/Homo_Sapiens/*
+godata/Mus\ musculus/*
+GOliath.Rproj
