@@ -54,8 +54,8 @@ if (is.na(type)) {
     print("Using ranked gene list")
 }	else print("Gene list type not recognised")
 
-species_tail <- as.vector(str_split(species, "/", simplify = TRUE)) %>% tail(n=2)
-print(paste("Using species", species_tail))
+species_tail <- as.vector(str_split(species, "/", simplify = TRUE)) %>% tail(n=1)
+print(paste("Using species ", species_tail))
 
 # import the query genes
 query_genes <- scan("gene_list.txt", what = "character", quiet = TRUE)
@@ -70,15 +70,15 @@ query_genes <- runGOA::clean_text(query_genes)
 bg_genes    <- runGOA::clean_text(bg_genes)
 print(head(query_genes))
 print(head(bg_genes))
-species_common <- NULL
+species_common <- species_tail
 
-if (grepl(pattern = "Homo_Sapiens", species)) {
-    species_common <- "human"
-} else if (grepl(pattern = "Mus musculus", species)) {
-    species_common <- "mouse"
-} else {
-    stop("Couldn't match species")
-}
+#if (grepl(pattern = "Homo_Sapiens", species)) {
+#    species_common <- "human"
+#} else if (grepl(pattern = "Mus musculus", species)) {
+#    species_common <- "mouse"
+#} else {
+#    stop("Couldn't match species")
+#}
 
 
 if (species_common == "human") {
@@ -94,11 +94,17 @@ if (species_common == "human") {
 #===========================
 # this needs sorting properly 
 if (species_common == "human") {
-    gene_info_file_location <- here::here("gene_info_data/Homo sapiens/","GRCh38.80_gene_info.txt")
-    all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
+   # gene_info_file_location <- here::here("gene_info_data/Homo sapiens/","GRCh38.80_gene_info.txt")
+   # all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
+    load(here::here("processing/gene_info_processing/human_genfo.rda"))
+    all_gene_info <- human_genfo
+    rm(human_genfo)
 } else if (species_common == "mouse") {
-    gene_info_file_location <- here::here("gene_info_data/Mus musculus","GRCm38.80_gene_info.txt")
-    all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
+    #gene_info_file_location <- here::here("gene_info_data/Mus musculus","GRCm38.80_gene_info.txt")
+    #all_gene_info <- fread(gene_info_file_location, select = c(1:5,7:11), stringsAsFactors = TRUE, data.table = FALSE)
+    load(here::here("processing/gene_info_processing/mouse_genfo.rda"))
+    all_gene_info <- mouse_genfo
+    rm(mouse_genfo)
 } else {
     print("Couldn't find gene info file")
 }
@@ -374,7 +380,7 @@ dev.off()
 #=============
 # chr plot
 #=============
-print("in chr plot1")
+
 query_chr <- get_chromosomes(query_filt, gene_info)
 bg_chr    <- get_chromosomes(bg_genes, gene_info)
 
@@ -384,8 +390,6 @@ query_tbl <- as_tibble(query_chr) %>%
   count(value) %>%
   mutate(query = n/sum(n)) %>%
   select(-n) 
-
-print("in chr plot2")
 
 whole_tbl <- as_tibble(bg_chr) %>%
   count(value) %>%
@@ -398,17 +402,11 @@ whole_tbl <- as_tibble(bg_chr) %>%
 
 save(whole_tbl, file = "whole_tbl.rda")
 
-print(head(whole_tbl))
-
-print("in chr plot3")
-
 chrs <- chrs[chrs %in% whole_tbl$chr]
 print("in chr plot4")
 
 tidy_chr <- whole_tbl %>%  
   mutate(chr = forcats::fct_relevel(.f = chr, chrs))  
-
-print("in chr plot3")
 
 p <- ggplot(tidy_chr, aes(x = chr, y = proportion, fill = type, color = type)) +
   geom_col(position = position_dodge(width = 0.7), width = 0.7) +

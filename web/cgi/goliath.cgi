@@ -490,24 +490,25 @@ sub show_job {
 
 
 sub list_species {
-    my @valid_species;
-
-    chdir("$RealBin/../../godata") or print_bug("Couldn't move to godata folder: $!");
-
-    my @species = File::Glob::bsd_glob("*");
-
-
-    foreach my $species (@species) {
-	next unless (-d $species);
-
-	my @versions = File::Glob::bsd_glob("$species/*");
-
-	foreach my $version (@versions) {
-	    next unless (-d $version);
-	    # TODO: Check for the correct files inside the directory
-	    push @valid_species,$version;
-	}
-    }
+    my  @valid_species = ("human", "mouse", "yeast");
+#    my @valid_species;
+#
+#    chdir("$RealBin/../../godata") or print_bug("Couldn't move to godata folder: $!");
+#
+#    my @species = File::Glob::bsd_glob("*");
+#
+#
+#    foreach my $species (@species) {
+#	next unless (-d $species);
+#
+#	my @versions = File::Glob::bsd_glob("$species/*");
+#
+#	foreach my $version (@versions) {
+#	    next unless (-d $version);
+#	    # TODO: Check for the correct files inside the directory
+#	    push @valid_species,$version;
+#	}
+#    }
     return @valid_species;
 
 }
