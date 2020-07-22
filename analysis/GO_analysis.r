@@ -184,16 +184,13 @@ if(is.null(go_results)){
     if (species_common == "human") {
         suspects <- read.delim(here::here("suspect_GO_categories/human","suspect_categories.txt"))
         print("read the human suspect file")
-    }
-    else if (species_common == "mouse") {
+    } else if (species_common == "mouse") {
         suspects <- read.delim(here::here("suspect_GO_categories/mouse","suspect_categories.txt"))
         print("read the mouse suspect file")
-    }
-    else if (species_common == "yeast") {
+    } else if (species_common == "yeast") {
       suspects <- read.delim(here::here("suspect_GO_categories/yeast","suspect_categories.txt"))
       print("read the yeast suspect file")
-    }
-    else {
+    } else {
         stop("Shouldn't have got to here, something's gone wrong with finding the suspect categories")
     }
 
@@ -335,8 +332,17 @@ print(Sys.time())
 
 print(head(gene_info))
 
-query_GC <- get_GC(query_filt, gene_info)
-bg_GC    <- get_GC(bg_genes, gene_info)
+#query_GC <- get_GC(query_filt, gene_info)
+#bg_GC    <- get_GC(bg_genes, gene_info)
+
+query_GC <- all_gene_info %>%
+  filter(gene_name %in% query_filt) %>%
+  pull(GC_content)
+
+bg_GC <- all_gene_info %>%
+  filter(gene_name %in% bg_genes) %>%
+  pull(GC_content)
+
 
 gc_data <- tibble(GC = query_GC, type = "query") %>%
   bind_rows(tibble(GC = bg_GC, type = "background"))
@@ -365,8 +371,17 @@ print("done GC plot")
 #=============
 # length plot
 #=============
-query_lengths <- get_lengths(query_filt, gene_info)
-bg_lengths    <- get_lengths(bg_genes, gene_info)
+#query_lengths <- get_lengths(query_filt, gene_info)
+#bg_lengths    <- get_lengths(bg_genes, gene_info)
+
+query_lengths <- all_gene_info %>%
+  filter(gene_name %in% query_filt) %>%
+  pull(length)
+
+bg_lengths <- all_gene_info %>%
+  filter(gene_name %in% bg_genes) %>%
+  pull(length)
+
 
 length_data <- tibble(gene_length = query_lengths, type = "query") %>%
   bind_rows(tibble(gene_length = bg_lengths, type = "background"))
@@ -395,8 +410,16 @@ dev.off()
 # chr plot
 #=============
 
-query_chr <- get_chromosomes(query_filt, gene_info)
-bg_chr    <- get_chromosomes(bg_genes, gene_info)
+#query_chr <- get_chromosomes(query_filt, gene_info)
+#bg_chr    <- get_chromosomes(bg_genes, gene_info)
+
+query_chr <- all_gene_info %>%
+  filter(gene_name %in% query_filt) %>%
+  pull(chromosome)
+
+bg_chr <- all_gene_info %>%
+  filter(gene_name %in% bg_genes) %>%
+  pull(chromosome)
 
 #chrs <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,"X","Y")
 
