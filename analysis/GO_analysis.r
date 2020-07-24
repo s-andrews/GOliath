@@ -119,8 +119,8 @@ if (species_common == "human") {
     print("Couldn't find gene info file")
 }
 
-# make sure gene names are upper case
-all_gene_info[,"gene_name"] <- toupper(all_gene_info[,"gene_name"])
+# make sure gene names are upper case - they should already be in the genfo file as part of the pre-processing, don't duplicate
+#all_gene_info[,"gene_name"] <- toupper(all_gene_info[,"gene_name"])
 
 print("Sorting background genes")
 print(Sys.time())
