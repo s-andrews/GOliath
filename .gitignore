@@ -24,3 +24,4 @@ jobs/*
 godata/Homo_Sapiens/*
 godata/Mus\ musculus/*
 GOliath.Rproj
+.Rproj.user
